@@ -1,8 +1,8 @@
 use reqwest;
 use scraper::{Html, Selector};
-use tokio;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json;
+use tokio;
 
 #[tokio::main]
 async fn main() {
@@ -40,12 +40,12 @@ async fn main() {
 
                 /* Парсим сиблинг в зависимости от имени в <th>  */
                 for td in tr.select(&td_selector) {
-                    
                     // println!("=====\n{}\n==========", td.html());
 
                     match name_of_row {
-                        "Entry" => println!("{}",entry_row_parsing(td.html()).unwrap()),
+                        "Entry" => println!("{}", entry_row_parsing(td.html()).unwrap()),
                         "Name" => println!("{}", name_row_parsing(td.html()).unwrap()),
+                        "Formula" => println!("{}", formula_row_parsing(td.html()).unwrap()),
                         _ => continue,
                     };
                     break;
@@ -56,20 +56,17 @@ async fn main() {
     }
 }
 
-fn entry_row_parsing(html: String)-> Option<String>{
-
+fn entry_row_parsing(html: String) -> Option<String> {
     #[derive(Serialize, Deserialize, Debug)]
-    struct otp_struct{
+    struct otp_struct {
         Entry: String,
-        Type: String
+        Type: String,
     }
-
 
     let fragment = Html::parse_fragment(&html);
     let span_sel = Selector::parse("table.w1 td.tal span").unwrap();
 
     // println!("{:#?}", fragment.select(&span_sel).next().unwrap().text());
-    
 
     let mut word_list = fragment
         .select(&span_sel)
@@ -78,20 +75,25 @@ fn entry_row_parsing(html: String)-> Option<String>{
         .text()
         .map(|word| word.trim().to_string())
         .collect::<Vec<String>>();
-    
-    word_list= word_list[0].split_whitespace().map(|word| word.to_string()).collect();
 
-    let tmp_otp = otp_struct{Entry: word_list[0].clone(), Type: word_list[1].clone()};
+    word_list = word_list[0]
+        .split_whitespace()
+        .map(|word| word.to_string())
+        .collect();
+
+    let tmp_otp = otp_struct {
+        Entry: word_list[0].clone(),
+        Type: word_list[1].clone(),
+    };
 
     Some(serde_json::to_string(&tmp_otp).unwrap())
-    
 }
-fn name_row_parsing(html: String)-> Option<String>{
+fn name_row_parsing(html: String) -> Option<String> {
     /* Парсим блок напротив Name в Compound */
-    
+
     #[derive(Serialize, Deserialize, Debug)]
-    struct otp_struct{
-        Name: Vec<String>
+    struct otp_struct {
+        Name: Vec<String>,
     };
 
     let fragment = Html::parse_fragment(&html);
@@ -102,7 +104,7 @@ fn name_row_parsing(html: String)-> Option<String>{
         .next()
         .unwrap()
         .text()
-        .map(|word|word.to_string())
+        .map(|word| word.to_string())
         .collect::<Vec<String>>()
         .join("")
         .trim()
@@ -111,15 +113,38 @@ fn name_row_parsing(html: String)-> Option<String>{
         .collect::<Vec<String>>();
 
     // name_list.retain(|elem| elem=="");
-    
-    let tmp_otp = otp_struct{Name: name_list};
-    
+
+    let tmp_otp = otp_struct { Name: name_list };
+
     // println!("{}",serde_json::to_string(&tmp_otp).unwrap());
-    
+
     Some(serde_json::to_string(&tmp_otp).unwrap())
 
-
-    
-
     // println!("{:?}", name_list);
+}
+fn formula_row_parsing(html: String) -> Option<String> {
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Formula: String,
+    };
+
+    let fragment = Html::parse_fragment(&html);
+    let div_cell_sel = Selector::parse("div.cel").unwrap();
+
+    let formula = fragment
+        .select(&div_cell_sel)
+        .next()
+        .unwrap()
+        .text()
+        .map(|word| word.to_string())
+        .collect::<Vec<String>>()
+        .join("")
+        .trim()
+        .to_string();
+
+    let tmp_otp = otp_struct { Formula: formula };
+
+    // println!("{}",serde_json::to_string(&tmp_otp).unwrap());
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
 }
