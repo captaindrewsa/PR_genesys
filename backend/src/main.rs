@@ -256,14 +256,25 @@ fn enzyme_row_parsing(html: String) -> Option<String>{
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Enzyme: Vec<String>,
-    };
+    }
 
+    let re = regex::Regex::new(r"[0-9\-]{1,4}\.[0-9\-]{1,4}\.[0-9\-]{1,4}\.[0-9\-]{1,4}").unwrap();
+    
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-    // println!("======={:#?}\n=======", fragment.select(&div_cell_sel).next().unwrap().text());
 
+    let enzymes_string = fragment
+        .select(&div_cell_sel)
+        .next()
+        .unwrap()
+        .text()
+        .map(|word| word.to_string())
+        .collect::<String>();
 
+    let enzymes_list = re.find_iter(&enzymes_string).map(|reac| reac.as_str().to_string()).collect::<Vec<String>>();
+
+/* 
     let enzymes_list = fragment
         .select(&div_cell_sel)
         .next()
@@ -275,7 +286,7 @@ fn enzyme_row_parsing(html: String) -> Option<String>{
         .split_whitespace()
         .map(|word| word.to_string())
         .collect();
-
+ */
 
 
     let tmp_otp = otp_struct { Enzyme: enzymes_list };
