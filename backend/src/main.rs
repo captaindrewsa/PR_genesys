@@ -3,6 +3,7 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use tokio;
+use regex;
 
 #[tokio::main]
 async fn main() {
@@ -11,7 +12,7 @@ async fn main() {
     td > DIV.CELL
      */
 
-    let resp = reqwest::get("https://www.kegg.jp/entry/C00383")
+    let resp = reqwest::get("https://www.kegg.jp/entry/C00033")
         .await
         .unwrap()
         .text()
@@ -52,6 +53,7 @@ async fn main() {
                         "Reaction" => println!("{}", reaction_row_parsing(td.html()).unwrap()),
                         "Enzyme" => println!("{}", enzyme_row_parsing(td.html()).unwrap()),
                         "Pathway" => println!("{}", pathway_row_parsing(td.html()).unwrap()),
+                        "Module" => println!("{}", module_row_parsing(td.html()).unwrap()),
 
                         _ => continue,
                     };
@@ -215,9 +217,23 @@ fn reaction_row_parsing(html: String) -> Option<String>{
         Reaction: Vec<String>,
     };
 
+    let re = regex::Regex::new(r"R[0-9]{5}").unwrap();
+
+    
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
+    let reactions_string = fragment
+        .select(&div_cell_sel)
+        .next()
+        .unwrap()
+        .text()
+        .map(|word| word.to_string())
+        .collect::<String>();
+
+    let reaction_list = re.find_iter(&reactions_string).map(|reac| reac.as_str().to_string()).collect::<Vec<String>>();
+
+    /* 
     let reaction_list = fragment
         .select(&div_cell_sel)
         .next()
@@ -230,7 +246,7 @@ fn reaction_row_parsing(html: String) -> Option<String>{
         .split(" ")
         .map(|word| word.trim().to_string())
         .collect::<Vec<String>>();
-
+ */
 
     let tmp_otp = otp_struct { Reaction: reaction_list };
 
@@ -305,4 +321,41 @@ fn pathway_row_parsing(html: String) -> Option<String>{
 
     Some(serde_json::to_string(&tmp_otp).unwrap())  
 
+}
+fn module_row_parsing(html: String) -> Option<String>{
+      /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
+      #[derive(Serialize, Deserialize, Debug)]
+      struct otp_struct {
+          Module: Vec<Vec<String>>,
+      };
+  
+      let fragment = Html::parse_fragment(&html);
+      let table_sel = Selector::parse("table.w1").unwrap();
+      let body_sel = Selector::parse("body").unwrap(); 
+  
+      let mut final_vec_of_module: Vec<Vec<String>> = Vec::new();
+  
+      for table in fragment.select(&table_sel){
+          //Здесь бежим по строчкам-табличкам
+  
+          let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер   
+  
+          let tmp_vec = fragment.select(&body_sel)
+          .next()
+          .unwrap()
+          .text()
+          .map(|word| word.to_string())
+          .collect::<Vec<String>>()
+          .join("")
+          .split("\u{a0}\u{a0}")
+          .map(|word| word.to_string())
+          .collect::<Vec<String>>();
+  
+          final_vec_of_module.push(tmp_vec);
+  
+      }
+      
+      let tmp_otp = otp_struct { Module: final_vec_of_module };
+  
+      Some(serde_json::to_string(&tmp_otp).unwrap())  
 }
