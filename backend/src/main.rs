@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use reqwest;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
@@ -12,7 +14,7 @@ async fn main() {
     td > DIV.CELL
      */
 
-    let resp = reqwest::get("https://www.kegg.jp/entry/C00033")
+    let resp = reqwest::get("https://www.kegg.jp/entry/R11813")
         .await
         .unwrap()
         .text()
@@ -25,7 +27,6 @@ async fn main() {
     let th_selector = Selector::parse("th").unwrap();
     let td_selector = Selector::parse("td").unwrap();
     let span_selector = Selector::parse("span").unwrap();
-    let dev_cell_selector = Selector::parse("div.cell").unwrap();
 
     let main_table = fragment.select(&main_table_selector).next().unwrap();
 
@@ -37,29 +38,39 @@ async fn main() {
         for th in tr.select(&th_selector) {
             /* Здесь нужно вычленить span для определения названия строчки*/
             for span in th.select(&span_selector) {
-                let name_of_row = span.text().collect::<Vec<&str>>()[0];
+                
+
+                if let Some(name_of_row) = span.text().collect::<Vec<&str>>().first().cloned(){
+                    
+                    for td in tr.select(&td_selector) {
+                        // println!("=====\n{}\n==========", td.html());
+    
+                        match name_of_row {
+                            "Entry" => println!("{}", entry_row_parsing(td.html()).unwrap()),
+                            "Name" => println!("{}", name_row_parsing(td.html()).unwrap()),
+                            "Formula" => println!("{}", formula_row_parsing(td.html()).unwrap()),
+                            "Exact mass" => println!("{}", exact_mass_row_parsing(td.html()).unwrap()),
+                            "Mol weight" => println!("{}", mol_weight_row_parsing(td.html()).unwrap()),
+                            // "Structure" => todo!("Сделать загрузку Mol File"),
+                            "Reaction" => println!("{}", reaction_row_parsing(td.html()).unwrap()),
+                            "Enzyme" => println!("{}", enzyme_row_parsing(td.html()).unwrap()),
+                            "Pathway" => println!("{}", pathway_row_parsing(td.html()).unwrap()),
+                            "Module" => println!("{}", module_row_parsing(td.html()).unwrap()),
+                            "Definition" => println!("{}", definition_row_parsing(td.html()).unwrap()),
+    
+                            _ => continue,
+                        };
+                        break;
+                    }
+                } else {
+                    
+                    // todo!("Сделать обработку картинки с реакцией, чтобы подгружалась");
+                    
+                    continue;
+                }
+                }
 
                 /* Парсим сиблинг в зависимости от имени в <th>  */
-                for td in tr.select(&td_selector) {
-                    // println!("=====\n{}\n==========", td.html());
-
-                    match name_of_row {
-                        "Entry" => println!("{}", entry_row_parsing(td.html()).unwrap()),
-                        "Name" => println!("{}", name_row_parsing(td.html()).unwrap()),
-                        "Formula" => println!("{}", formula_row_parsing(td.html()).unwrap()),
-                        "Exact mass" => println!("{}", exact_mass_row_parsing(td.html()).unwrap()),
-                        "Mol weight" => println!("{}", mol_weight_row_parsing(td.html()).unwrap()),
-                        // "Structure" => todo!("Сделать загрузку Mol File"),
-                        "Reaction" => println!("{}", reaction_row_parsing(td.html()).unwrap()),
-                        "Enzyme" => println!("{}", enzyme_row_parsing(td.html()).unwrap()),
-                        "Pathway" => println!("{}", pathway_row_parsing(td.html()).unwrap()),
-                        "Module" => println!("{}", module_row_parsing(td.html()).unwrap()),
-
-                        _ => continue,
-                    };
-                    break;
-                }
-            }
             // println!("=================");
         }
     }
@@ -369,4 +380,37 @@ fn module_row_parsing(html: String) -> Option<String>{
       let tmp_otp = otp_struct { Module: final_vec_of_module };
   
       Some(serde_json::to_string(&tmp_otp).unwrap())  
+}
+fn definition_row_parsing(html: String)-> Option<String>{
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Substrate: Vec<String>,
+        Product: Vec<String>,
+        Reversible: bool
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let div_cell_sel = Selector::parse("div.cel").unwrap();
+
+    let definition_string = fragment
+        .select(&div_cell_sel)
+        .next()
+        .unwrap()
+        .text()
+        .map(|word| word.trim().to_string())
+        .collect::<String>();
+
+    let reversible = definition_string.contains("<=>");
+    
+    let reagents = definition_string
+    .split("<=>")
+    .map(|var| var.to_string())
+    .collect::<Vec<String>>();
+
+    let substrate = reagents[0].split(" + ").map(|var| var.trim().to_string()).collect::<Vec<String>>();
+    let products = reagents[1].split(" + ").map(|var| var.trim().to_string()).collect::<Vec<String>>();
+
+    let tmp_otp = otp_struct { Substrate: substrate, Product: products, Reversible: reversible  };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
 }
