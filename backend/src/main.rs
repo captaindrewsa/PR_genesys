@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 use std::collections::HashMap;
 
 use regex;
@@ -43,37 +45,103 @@ async fn main() {
                         // println!("=====\n{}\n==========", td.html());
 
                         match name_of_row {
-                            "Entry" => println!("{}", entry_row_parsing(td.html()).unwrap()),
-                            "Name" => println!("{}", name_row_parsing(td.html()).unwrap()),
-                            "Formula" => println!("{}", formula_row_parsing(td.html()).unwrap()),
-                            "Exact mass" => {
-                                println!("{}", exact_mass_row_parsing(td.html()).unwrap())
-                            }
-                            "Mol weight" => {
-                                println!("{}", mol_weight_row_parsing(td.html()).unwrap())
-                            }
+                            "Entry" => if let Some(var) = entry_row_parsing(td.html()) {
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Name" => if let Some(var) = name_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Formula" => if let Some(var) = formula_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Exact mass" => if let Some(var) = exact_mass_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Mol weight" => if let Some(var) = mol_weight_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
                             // "Structure" => todo!("Сделать загрузку Mol File"),
-                            "Reaction" => println!("{}", reaction_row_parsing(td.html()).unwrap()),
-                            "Enzyme" => println!("{}", enzyme_row_parsing(td.html()).unwrap()),
-                            "Pathway" => println!("{}", pathway_row_parsing(td.html()).unwrap()),
-                            "Module" => println!("{}", module_row_parsing(td.html()).unwrap()),
-                            "Definition" => {
-                                println!("{}", definition_row_parsing(td.html()).unwrap())
-                            }
-                            "Equation" => println!("{}", equation_row_parsing(td.html()).unwrap()),
-                            "Reaction(IUBMB)" => {
-                                println!("{}", reaction_iubmb_row_parsing(td.html()).unwrap())
-                            }
-                            "Reaction(KEGG)" => {
-                                println!("{}", reaction_kegg_row_parsing(td.html()).unwrap())
-                            }
-                            "Substrate" => {
-                                println!("{}", substrate_kegg_row_parsing(td.html()).unwrap())
-                            }
-                            "Product" => {
-                                println!("{}", product_kegg_row_parsing(td.html()).unwrap())
-                            }
-                            "Genes" => println!("{}", genes_row_parsing(td.html()).unwrap()),
+                            "Reaction" => if let Some(var) = reaction_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Enzyme" => if let Some(var) = enzyme_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Pathway" => if let Some(var) = pathway_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Module" => if let Some(var) = module_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Definition" => if let Some(var) = definition_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Equation" => if let Some(var) = equation_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Reaction(IUBMB)" => if let Some(var) = reaction_iubmb_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Reaction(KEGG)" => if let Some(var) = reaction_kegg_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Substrate" => if let Some(var) = substrate_kegg_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Product" => if let Some(var) = product_kegg_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
+                            "Genes" => if let Some(var) = genes_row_parsing(td.html()){
+                                println!("{}", var);
+                                
+                            } else {
+                                println!("None");
+                            },
                             _ => continue,
                         };
                         break;
