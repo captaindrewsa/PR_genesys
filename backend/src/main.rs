@@ -169,8 +169,8 @@ fn entry_row_parsing(html: String) -> Option<String> {
     let fragment = Html::parse_fragment(&html);
     let span_sel = Selector::parse("table.w1 td.tal span").unwrap();
 
-    let reg_entry = regex::Regex::new(r"[A-Z]{1,2}\s??[0-9\.]{5,16}").unwrap();
-    let reg_type = regex::Regex::new(r"[A-Za-z]{4,15}").unwrap();
+    let reg_entry = regex::Regex::new(r"[A-Z]{0,2}\s??[0-9\.]{5,16}").unwrap();
+    let reg_type = regex::Regex::new(r"[A-Za-z]{3,15}").unwrap();
 
     let mut word_list = fragment
         .select(&span_sel)
@@ -180,17 +180,10 @@ fn entry_row_parsing(html: String) -> Option<String> {
         .map(|word| word.trim().to_string())
         .collect::<Vec<String>>();
 
-    // println!("======{}:::{}=====", reg_entry.find(&word_list[0].clone()).unwrap().as_str(),reg_type.find(&word_list[0]).unwrap().as_str());
-
     let word_list = vec![
         reg_entry.find(&word_list[0]).unwrap().as_str(),
         reg_type.find(&word_list[0]).unwrap().as_str(),
     ];
-
-    // word_list = word_list[0]
-    //     .split_whitespace()
-    //     .map(|word| word.to_string())
-    //     .collect();
 
     let tmp_otp = otp_struct {
         Entry: word_list[0].clone().to_string(),
