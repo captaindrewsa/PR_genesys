@@ -16,7 +16,7 @@ async fn main() {
     td > DIV.CELL
      */
 
-    let resp = reqwest::get("https://www.genome.jp/entry/hsa:377841")
+    let resp = reqwest::get("https://www.genome.jp/entry/3.6.1.5")
         .await
         .unwrap()
         .text()
@@ -45,102 +45,146 @@ async fn main() {
                         // println!("=====\n{}\n==========", td.html());
 
                         match name_of_row {
-                            "Entry" => if let Some(var) = entry_row_parsing(td.html()) {
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Name" => if let Some(var) = name_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Formula" => if let Some(var) = formula_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Exact mass" => if let Some(var) = exact_mass_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Mol weight" => if let Some(var) = mol_weight_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
+                            "Entry" => {
+                                if let Some(var) = entry_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Name" => {
+                                if let Some(var) = name_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Formula" => {
+                                if let Some(var) = formula_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Exact mass" => {
+                                if let Some(var) = exact_mass_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Mol weight" => {
+                                if let Some(var) = mol_weight_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
                             // "Structure" => todo!("Сделать загрузку Mol File"),
-                            "Reaction" => if let Some(var) = reaction_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
+                            "Reaction" => {
+                                if let Some(var) = reaction_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Enzyme" => {
+                                if let Some(var) = enzyme_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Pathway" => {
+                                if let Some(var) = pathway_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Module" => {
+                                if let Some(var) = module_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Definition" => {
+                                if let Some(var) = definition_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Equation" => {
+                                if let Some(var) = equation_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Reaction(IUBMB)" => {
+                                if let Some(var) = reaction_iubmb_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Reaction(KEGG)" => {
+                                if let Some(var) = reaction_kegg_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Substrate" => {
+                                if let Some(var) = substrate_kegg_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Product" => {
+                                if let Some(var) = product_kegg_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Genes" => {
+                                if let Some(var) = genes_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Symbol" => {
+                                if let Some(var) = symbol_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
+                            }
+                            "Organism" => {
+                                if let Some(var) = orgnism_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
                             },
-                            "Enzyme" => if let Some(var) = enzyme_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
+                            "AA seq" => {
+                                if let Some(var) = aa_seq_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
                             },
-                            "Pathway" => if let Some(var) = pathway_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Module" => if let Some(var) = module_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Definition" => if let Some(var) = definition_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Equation" => if let Some(var) = equation_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Reaction(IUBMB)" => if let Some(var) = reaction_iubmb_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Reaction(KEGG)" => if let Some(var) = reaction_kegg_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Substrate" => if let Some(var) = substrate_kegg_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Product" => if let Some(var) = product_kegg_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
-                            },
-                            "Genes" => if let Some(var) = genes_row_parsing(td.html()){
-                                println!("{}", var);
-                                
-                            } else {
-                                println!("None");
+                            "NT seq" => {
+                                if let Some(var) = nt_seq_row_parsing(td.html()) {
+                                    println!("{}", var);
+                                } else {
+                                    println!("None");
+                                }
                             },
                             _ => continue,
                         };
@@ -653,6 +697,111 @@ fn genes_row_parsing(html: String) -> Option<String> {
     let tmp_otp = otp_struct {
         Genes: final_map_of_module,
     };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn symbol_row_parsing(html: String) -> Option<String> {
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Symbol: Vec<String>,
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let div_sel = Selector::parse(r"div.cel").unwrap();
+
+    let tmp_vec = fragment
+        .select(&div_sel)
+        .next()
+        .unwrap()
+        .text()
+        .map(|var| var.trim().to_string())
+        .collect::<String>()
+        .split(",")
+        .map(|var| var.trim().to_string())
+        .collect::<Vec<String>>();
+
+    let tmp_otp = otp_struct { Symbol: tmp_vec };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn orgnism_row_parsing(html: String) -> Option<String> {
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Organism: Vec<String>,
+    };
+
+    let fragment = Html::parse_fragment(&html);
+    let div_sel = Selector::parse("div.cel").unwrap();
+
+    let tmp_vec = fragment
+        .select(&div_sel)
+        .next()
+        .unwrap()
+        .text()
+        .map(|word| word.trim().to_string())
+        .collect::<Vec<String>>()
+        .join("  ")
+        .trim()
+        .split("  ")
+        .map(|var| var.to_string())
+        .collect();
+
+    let tmp_otp = otp_struct { Organism: tmp_vec };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn aa_seq_row_parsing(html:String)-> Option<String>{
+
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        AA_seq: String,
+    };
+
+
+    let fragment = Html::parse_fragment(&html);
+    let td_sel = Selector::parse("html").unwrap();
+
+    let reg = regex::Regex::new(r"[A-Z]{3,}").unwrap();
+
+    let tmp = fragment.select(&td_sel)
+    .next()
+    .unwrap()
+    .text()
+    .map(|var| var.trim().to_string())
+    .collect::<String>();
+
+    let tmp_otp = otp_struct { AA_seq: reg.find(&tmp).unwrap().as_str().to_string()};
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn nt_seq_row_parsing(html: String) -> Option<String>{
+
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        NT_seq: String,
+    };
+
+
+    let fragment = Html::parse_fragment(&html);
+    let html_sel = Selector::parse("html").unwrap();
+
+    let reg = regex::Regex::new(r"(a|t|g|c|u){6,}").unwrap();
+
+    let word_list = fragment.select(&html_sel)
+    .next()
+    .unwrap()
+    .text()
+    .map(|var| var.trim().to_string())
+    .collect::<Vec<String>>()
+    .join(" ");
+
+    let mut tmp = String::new();
+
+    for (nt_seq,[_]) in reg.captures_iter(&word_list).map(|word| word.extract()){
+        tmp.push_str(nt_seq);
+    }
+
+    let tmp_otp = otp_struct { NT_seq:tmp};
 
     Some(serde_json::to_string(&tmp_otp).unwrap())
 }
