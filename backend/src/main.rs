@@ -1,11 +1,11 @@
-use std::borrow::Borrow;
+use std::collections::HashMap;
 
+use regex;
 use reqwest;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use tokio;
-use regex;
 
 #[tokio::main]
 async fn main() {
@@ -14,7 +14,7 @@ async fn main() {
     td > DIV.CELL
      */
 
-    let resp = reqwest::get("https://www.kegg.jp/entry/R11813")
+    let resp = reqwest::get("https://www.genome.jp/entry/hsa:377841")
         .await
         .unwrap()
         .text()
@@ -38,39 +38,54 @@ async fn main() {
         for th in tr.select(&th_selector) {
             /* Здесь нужно вычленить span для определения названия строчки*/
             for span in th.select(&span_selector) {
-                
-
-                if let Some(name_of_row) = span.text().collect::<Vec<&str>>().first().cloned(){
-                    
+                if let Some(name_of_row) = span.text().collect::<Vec<&str>>().first().cloned() {
                     for td in tr.select(&td_selector) {
                         // println!("=====\n{}\n==========", td.html());
-    
+
                         match name_of_row {
                             "Entry" => println!("{}", entry_row_parsing(td.html()).unwrap()),
                             "Name" => println!("{}", name_row_parsing(td.html()).unwrap()),
                             "Formula" => println!("{}", formula_row_parsing(td.html()).unwrap()),
-                            "Exact mass" => println!("{}", exact_mass_row_parsing(td.html()).unwrap()),
-                            "Mol weight" => println!("{}", mol_weight_row_parsing(td.html()).unwrap()),
+                            "Exact mass" => {
+                                println!("{}", exact_mass_row_parsing(td.html()).unwrap())
+                            }
+                            "Mol weight" => {
+                                println!("{}", mol_weight_row_parsing(td.html()).unwrap())
+                            }
                             // "Structure" => todo!("Сделать загрузку Mol File"),
                             "Reaction" => println!("{}", reaction_row_parsing(td.html()).unwrap()),
                             "Enzyme" => println!("{}", enzyme_row_parsing(td.html()).unwrap()),
                             "Pathway" => println!("{}", pathway_row_parsing(td.html()).unwrap()),
                             "Module" => println!("{}", module_row_parsing(td.html()).unwrap()),
-                            "Definition" => println!("{}", definition_row_parsing(td.html()).unwrap()),
-    
+                            "Definition" => {
+                                println!("{}", definition_row_parsing(td.html()).unwrap())
+                            }
+                            "Equation" => println!("{}", equation_row_parsing(td.html()).unwrap()),
+                            "Reaction(IUBMB)" => {
+                                println!("{}", reaction_iubmb_row_parsing(td.html()).unwrap())
+                            }
+                            "Reaction(KEGG)" => {
+                                println!("{}", reaction_kegg_row_parsing(td.html()).unwrap())
+                            }
+                            "Substrate" => {
+                                println!("{}", substrate_kegg_row_parsing(td.html()).unwrap())
+                            }
+                            "Product" => {
+                                println!("{}", product_kegg_row_parsing(td.html()).unwrap())
+                            }
+                            "Genes" => println!("{}", genes_row_parsing(td.html()).unwrap()),
                             _ => continue,
                         };
                         break;
                     }
                 } else {
-                    
                     // todo!("Сделать обработку картинки с реакцией, чтобы подгружалась");
-                    
+
                     continue;
                 }
-                }
+            }
 
-                /* Парсим сиблинг в зависимости от имени в <th>  */
+            /* Парсим сиблинг в зависимости от имени в <th>  */
             // println!("=================");
         }
     }
@@ -86,7 +101,8 @@ fn entry_row_parsing(html: String) -> Option<String> {
     let fragment = Html::parse_fragment(&html);
     let span_sel = Selector::parse("table.w1 td.tal span").unwrap();
 
-    // println!("{:#?}", fragment.select(&span_sel).next().unwrap().text());
+    let reg_entry = regex::Regex::new(r"[A-Z]{1,2}\s??[0-9\.]{5,16}").unwrap();
+    let reg_type = regex::Regex::new(r"[A-Za-z]{4,15}").unwrap();
 
     let mut word_list = fragment
         .select(&span_sel)
@@ -96,14 +112,21 @@ fn entry_row_parsing(html: String) -> Option<String> {
         .map(|word| word.trim().to_string())
         .collect::<Vec<String>>();
 
-    word_list = word_list[0]
-        .split_whitespace()
-        .map(|word| word.to_string())
-        .collect();
+    // println!("======{}:::{}=====", reg_entry.find(&word_list[0].clone()).unwrap().as_str(),reg_type.find(&word_list[0]).unwrap().as_str());
+
+    let word_list = vec![
+        reg_entry.find(&word_list[0]).unwrap().as_str(),
+        reg_type.find(&word_list[0]).unwrap().as_str(),
+    ];
+
+    // word_list = word_list[0]
+    //     .split_whitespace()
+    //     .map(|word| word.to_string())
+    //     .collect();
 
     let tmp_otp = otp_struct {
-        Entry: word_list[0].clone(),
-        Type: word_list[1].clone(),
+        Entry: word_list[0].clone().to_string(),
+        Type: word_list[1].clone().to_string(),
     };
 
     Some(serde_json::to_string(&tmp_otp).unwrap())
@@ -132,15 +155,9 @@ fn name_row_parsing(html: String) -> Option<String> {
         .map(|word| word.trim().to_string())
         .collect::<Vec<String>>();
 
-    // name_list.retain(|elem| elem=="");
-
     let tmp_otp = otp_struct { Name: name_list };
 
-    // println!("{}",serde_json::to_string(&tmp_otp).unwrap());
-
     Some(serde_json::to_string(&tmp_otp).unwrap())
-
-    // println!("{:?}", name_list);
 }
 fn formula_row_parsing(html: String) -> Option<String> {
     #[derive(Serialize, Deserialize, Debug)]
@@ -163,8 +180,6 @@ fn formula_row_parsing(html: String) -> Option<String> {
         .to_string();
 
     let tmp_otp = otp_struct { Formula: formula };
-
-    // println!("{}",serde_json::to_string(&tmp_otp).unwrap());
 
     Some(serde_json::to_string(&tmp_otp).unwrap())
 }
@@ -191,8 +206,6 @@ fn exact_mass_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { Exact_mass: mass };
 
-    // println!("{}",serde_json::to_string(&tmp_otp).unwrap());
-
     Some(serde_json::to_string(&tmp_otp).unwrap())
 }
 fn mol_weight_row_parsing(html: String) -> Option<String> {
@@ -218,11 +231,9 @@ fn mol_weight_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { Mol_weight: weight };
 
-    // println!("{}",serde_json::to_string(&tmp_otp).unwrap());
-
     Some(serde_json::to_string(&tmp_otp).unwrap())
 }
-fn reaction_row_parsing(html: String) -> Option<String>{
+fn reaction_row_parsing(html: String) -> Option<String> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Reaction: Vec<String>,
@@ -230,7 +241,6 @@ fn reaction_row_parsing(html: String) -> Option<String>{
 
     let re = regex::Regex::new(r"R[0-9]{5}").unwrap();
 
-    
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
@@ -242,38 +252,27 @@ fn reaction_row_parsing(html: String) -> Option<String>{
         .map(|word| word.to_string())
         .collect::<String>();
 
-    let reaction_list = re.find_iter(&reactions_string).map(|reac| reac.as_str().to_string()).collect::<Vec<String>>();
-
-    /* 
-    let reaction_list = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<Vec<String>>()
-        .join("")
-        .trim()
-        .split(" ")
-        .map(|word| word.trim().to_string())
+    let reaction_list = re
+        .find_iter(&reactions_string)
+        .map(|reac| reac.as_str().to_string())
         .collect::<Vec<String>>();
- */
 
-    let tmp_otp = otp_struct { Reaction: reaction_list };
+    let tmp_otp = otp_struct {
+        Reaction: reaction_list,
+    };
 
     Some(serde_json::to_string(&tmp_otp).unwrap())
 }
-fn enzyme_row_parsing(html: String) -> Option<String>{
+fn enzyme_row_parsing(html: String) -> Option<String> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Enzyme: Vec<String>,
     }
 
     let re = regex::Regex::new(r"[0-9\-]{1,4}\.[0-9\-]{1,4}\.[0-9\-]{1,4}\.[0-9\-]{1,4}").unwrap();
-    
+
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
-
 
     let enzymes_string = fragment
         .select(&div_cell_sel)
@@ -283,30 +282,18 @@ fn enzyme_row_parsing(html: String) -> Option<String>{
         .map(|word| word.to_string())
         .collect::<String>();
 
-    let enzymes_list = re.find_iter(&enzymes_string).map(|reac| reac.as_str().to_string()).collect::<Vec<String>>();
+    let enzymes_list = re
+        .find_iter(&enzymes_string)
+        .map(|reac| reac.as_str().to_string())
+        .collect::<Vec<String>>();
 
-/* 
-    let enzymes_list = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.trim().to_string())
-        .collect::<Vec<String>>()
-        .join(" ")
-        .split_whitespace()
-        .map(|word| word.to_string())
-        .collect();
- */
-
-
-    let tmp_otp = otp_struct { Enzyme: enzymes_list };
+    let tmp_otp = otp_struct {
+        Enzyme: enzymes_list,
+    };
 
     Some(serde_json::to_string(&tmp_otp).unwrap())
-
 }
-fn pathway_row_parsing(html: String) -> Option<String>{
-
+fn pathway_row_parsing(html: String) -> Option<String> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -315,78 +302,81 @@ fn pathway_row_parsing(html: String) -> Option<String>{
 
     let fragment = Html::parse_fragment(&html);
     let table_sel = Selector::parse("table.w1").unwrap();
-    let body_sel = Selector::parse("body").unwrap(); 
+    let body_sel = Selector::parse("body").unwrap();
 
     let mut final_vec_of_map: Vec<Vec<String>> = Vec::new();
 
-    for table in fragment.select(&table_sel){
+    for table in fragment.select(&table_sel) {
         //Здесь бежим по строчкам-табличкам
 
-        let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер   
+        let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер
 
-        let tmp_vec = fragment.select(&body_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<Vec<String>>()
-        .join("")
-        .split("\u{a0}\u{a0}")
-        .map(|word| word.to_string())
-        .collect::<Vec<String>>();
+        let tmp_vec = fragment
+            .select(&body_sel)
+            .next()
+            .unwrap()
+            .text()
+            .map(|word| word.to_string())
+            .collect::<Vec<String>>()
+            .join("")
+            .split("\u{a0}\u{a0}")
+            .map(|word| word.to_string())
+            .collect::<Vec<String>>();
 
         final_vec_of_map.push(tmp_vec);
-
     }
-    
-    let tmp_otp = otp_struct { Pathway: final_vec_of_map };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())  
+    let tmp_otp = otp_struct {
+        Pathway: final_vec_of_map,
+    };
 
+    Some(serde_json::to_string(&tmp_otp).unwrap())
 }
-fn module_row_parsing(html: String) -> Option<String>{
-      /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
-      #[derive(Serialize, Deserialize, Debug)]
-      struct otp_struct {
-          Module: Vec<Vec<String>>,
-      };
-  
-      let fragment = Html::parse_fragment(&html);
-      let table_sel = Selector::parse("table.w1").unwrap();
-      let body_sel = Selector::parse("body").unwrap(); 
-  
-      let mut final_vec_of_module: Vec<Vec<String>> = Vec::new();
-  
-      for table in fragment.select(&table_sel){
-          //Здесь бежим по строчкам-табличкам
-  
-          let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер   
-  
-          let tmp_vec = fragment.select(&body_sel)
-          .next()
-          .unwrap()
-          .text()
-          .map(|word| word.to_string())
-          .collect::<Vec<String>>()
-          .join("")
-          .split("\u{a0}\u{a0}")
-          .map(|word| word.to_string())
-          .collect::<Vec<String>>();
-  
-          final_vec_of_module.push(tmp_vec);
-  
-      }
-      
-      let tmp_otp = otp_struct { Module: final_vec_of_module };
-  
-      Some(serde_json::to_string(&tmp_otp).unwrap())  
+fn module_row_parsing(html: String) -> Option<String> {
+    /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Module: Vec<Vec<String>>,
+    };
+
+    let fragment = Html::parse_fragment(&html);
+    let table_sel = Selector::parse("table.w1").unwrap();
+    let body_sel = Selector::parse("body").unwrap();
+
+    let mut final_vec_of_module: Vec<Vec<String>> = Vec::new();
+
+    for table in fragment.select(&table_sel) {
+        //Здесь бежим по строчкам-табличкам
+
+        let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер
+
+        let tmp_vec = fragment
+            .select(&body_sel)
+            .next()
+            .unwrap()
+            .text()
+            .map(|word| word.to_string())
+            .collect::<Vec<String>>()
+            .join("")
+            .split("\u{a0}\u{a0}")
+            .map(|word| word.to_string())
+            .collect::<Vec<String>>();
+
+        final_vec_of_module.push(tmp_vec);
+    }
+
+    let tmp_otp = otp_struct {
+        Module: final_vec_of_module,
+    };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
 }
-fn definition_row_parsing(html: String)-> Option<String>{
+fn definition_row_parsing(html: String) -> Option<String> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Substrate: Vec<String>,
         Product: Vec<String>,
-        Reversible: bool
+        Reversible: bool,
     }
 
     let fragment = Html::parse_fragment(&html);
@@ -401,16 +391,208 @@ fn definition_row_parsing(html: String)-> Option<String>{
         .collect::<String>();
 
     let reversible = definition_string.contains("<=>");
-    
+
     let reagents = definition_string
-    .split("<=>")
-    .map(|var| var.to_string())
-    .collect::<Vec<String>>();
+        .split("<=>")
+        .map(|var| var.to_string())
+        .collect::<Vec<String>>();
 
-    let substrate = reagents[0].split(" + ").map(|var| var.trim().to_string()).collect::<Vec<String>>();
-    let products = reagents[1].split(" + ").map(|var| var.trim().to_string()).collect::<Vec<String>>();
+    let substrate = reagents[0]
+        .split(" + ")
+        .map(|var| var.trim().to_string())
+        .collect::<Vec<String>>();
+    let products = reagents[1]
+        .split(" + ")
+        .map(|var| var.trim().to_string())
+        .collect::<Vec<String>>();
 
-    let tmp_otp = otp_struct { Substrate: substrate, Product: products, Reversible: reversible  };
+    let tmp_otp = otp_struct {
+        Substrate: substrate,
+        Product: products,
+        Reversible: reversible,
+    };
 
     Some(serde_json::to_string(&tmp_otp).unwrap())
 }
+fn equation_row_parsing(html: String) -> Option<String> {
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Substrate: Vec<String>,
+        Product: Vec<String>,
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let div_cell_sel = Selector::parse("div.cel").unwrap();
+
+    let reg = regex::Regex::new(r"C[0-9]{5}").unwrap();
+
+    let equation_string = fragment
+        .select(&div_cell_sel)
+        .next()
+        .unwrap()
+        .text()
+        .map(|word| word.to_string())
+        .collect::<String>();
+
+    let reagents = equation_string
+        .split("=")
+        .map(|half_string| {
+            reg.find_iter(half_string)
+                .map(|half_string| half_string.as_str().to_string())
+                .collect::<Vec<String>>()
+        })
+        .collect::<Vec<Vec<String>>>();
+
+    let tmp_otp = otp_struct {
+        Substrate: reagents[0].clone(),
+        Product: reagents[1].clone(),
+    };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn reaction_iubmb_row_parsing(html: String) -> Option<String> {
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Reaction_IUBMB: Vec<String>,
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let a_selec = Selector::parse(r"a").unwrap();
+
+    let mut list_reactions: Vec<String> = Vec::new();
+
+    for elem in fragment.select(&a_selec) {
+        list_reactions.push(
+            elem.text()
+                .map(|word| word.trim().to_string())
+                .collect::<_>(),
+        );
+    }
+
+    let tmp_otp = otp_struct {
+        Reaction_IUBMB: list_reactions,
+    };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn reaction_kegg_row_parsing(html: String) -> Option<String> {
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Reaction_KEGG: Vec<String>,
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let a_selec = Selector::parse(r"a").unwrap();
+
+    let mut list_reactions: Vec<String> = Vec::new();
+
+    for elem in fragment.select(&a_selec) {
+        list_reactions.push(
+            elem.text()
+                .map(|word| word.trim().to_string())
+                .collect::<_>(),
+        );
+    }
+
+    let tmp_otp = otp_struct {
+        Reaction_KEGG: list_reactions,
+    };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn substrate_kegg_row_parsing(html: String) -> Option<String> {
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Substrate: Vec<String>,
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let a_selec = Selector::parse(r"a").unwrap();
+
+    let mut list_substrate: Vec<String> = Vec::new();
+
+    for elem in fragment.select(&a_selec) {
+        list_substrate.push(
+            elem.text()
+                .map(|word| word.trim().to_string())
+                .collect::<_>(),
+        );
+    }
+
+    let tmp_otp = otp_struct {
+        Substrate: list_substrate,
+    };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn product_kegg_row_parsing(html: String) -> Option<String> {
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Product: Vec<String>,
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let a_selec = Selector::parse(r"a").unwrap();
+
+    let mut list_product: Vec<String> = Vec::new();
+
+    for elem in fragment.select(&a_selec) {
+        list_product.push(
+            elem.text()
+                .map(|word| word.trim().to_string())
+                .collect::<_>(),
+        );
+    }
+
+    let tmp_otp = otp_struct {
+        Product: list_product,
+    };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+fn genes_row_parsing(html: String) -> Option<String> {
+    /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        Genes: HashMap<String, Vec<String>>,
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let table_sel = Selector::parse("table.w1").unwrap();
+    let body_sel = Selector::parse("body").unwrap();
+
+    let mut final_map_of_module: HashMap<String, Vec<String>> = HashMap::new();
+
+    for table in fragment.select(&table_sel) {
+        //Здесь бежим по строчкам-табличкам
+
+        let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер
+
+        let pair_vec = fragment
+            .select(&body_sel)
+            .next()
+            .unwrap()
+            .text()
+            .map(|word| word.trim().to_string())
+            .collect::<Vec<String>>()
+            .join("")
+            .split(":")
+            .map(|word| word.to_string())
+            .collect::<Vec<String>>();
+
+        final_map_of_module.insert(
+            pair_vec[0].clone(),
+            pair_vec[1]
+                .split(" ")
+                .map(|var| var.trim().to_string())
+                .collect::<Vec<String>>(),
+        );
+    }
+
+    let tmp_otp = otp_struct {
+        Genes: final_map_of_module,
+    };
+
+    Some(serde_json::to_string(&tmp_otp).unwrap())
+}
+
