@@ -279,8 +279,8 @@ pub fn module_row_parsing(html: String) -> Option<String> {
 }
 pub fn definition_row_parsing(html: String) -> Option<String> {
     #[derive(Serialize, Deserialize, Debug)]
-    struct otp_struct{
-        Definition: definition
+    struct otp_struct {
+        Definition: definition,
     }
     #[derive(Serialize, Deserialize, Debug)]
     struct definition {
@@ -322,16 +322,18 @@ pub fn definition_row_parsing(html: String) -> Option<String> {
         Reversible: reversible,
     };
 
-    let otp = otp_struct{ Definition: tmp_otp };
+    let otp = otp_struct {
+        Definition: tmp_otp,
+    };
 
     Some(serde_json::to_string(&otp).unwrap())
 }
 pub fn equation_row_parsing(html: String) -> Option<String> {
     #[derive(Serialize, Deserialize, Debug)]
-    struct otp_struct{
-        Equation: equation
+    struct otp_struct {
+        Equation: equation,
     }
-    
+
     #[derive(Serialize, Deserialize, Debug)]
     struct equation {
         Substrate: Vec<String>,
@@ -365,7 +367,7 @@ pub fn equation_row_parsing(html: String) -> Option<String> {
         Product: reagents[1].clone(),
     };
 
-    let otp_struct= otp_struct{ Equation: tmp_otp };
+    let otp_struct = otp_struct { Equation: tmp_otp };
 
     Some(serde_json::to_string(&otp_struct).unwrap())
 }

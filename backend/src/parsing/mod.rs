@@ -1,7 +1,7 @@
 mod parsers;
-
 use parsers::*;
 
+use json as other_json;
 use regex;
 use reqwest;
 use scraper::{Html, Selector};
@@ -44,103 +44,103 @@ impl Parser {
                                     if let Some(data) = entry_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
+                                }
                                 "Name" => {
                                     if let Some(data) = name_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
+                                }
                                 "Formula" => {
                                     if let Some(data) = formula_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
+                                }
                                 "Exact mass" => {
-                                    if let Some(data) =   exact_mass_row_parsing(td.html()) {
+                                    if let Some(data) = exact_mass_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Mol weight" =>  {
-                                    if let Some(data) =  mol_weight_row_parsing(td.html()) {
+                                }
+                                "Mol weight" => {
+                                    if let Some(data) = mol_weight_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
+                                }
                                 // "Structure" => todo!("Сделать загрузку Mol File"),
-                                "Reaction" =>  {
-                                    if let Some(data) =  reaction_row_parsing(td.html()) {
+                                "Reaction" => {
+                                    if let Some(data) = reaction_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Enzyme" =>  {
-                                    if let Some(data) =  enzyme_row_parsing(td.html()) {
+                                }
+                                "Enzyme" => {
+                                    if let Some(data) = enzyme_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Pathway" =>  {
-                                    if let Some(data) =  pathway_row_parsing(td.html()) {
+                                }
+                                "Pathway" => {
+                                    if let Some(data) = pathway_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Module" =>  {
-                                    if let Some(data) =  module_row_parsing(td.html()) {
+                                }
+                                "Module" => {
+                                    if let Some(data) = module_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Definition" =>   {
+                                }
+                                "Definition" => {
                                     if let Some(data) = definition_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Equation" =>  {
-                                    if let Some(data) =  equation_row_parsing(td.html()) {
+                                }
+                                "Equation" => {
+                                    if let Some(data) = equation_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
+                                }
                                 "Reaction(IUBMB)" => {
-                                    if let Some(data) =   reaction_iubmb_row_parsing(td.html()) {
+                                    if let Some(data) = reaction_iubmb_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Reaction(KEGG)" =>   {
+                                }
+                                "Reaction(KEGG)" => {
                                     if let Some(data) = reaction_kegg_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Substrate" =>  {
-                                    if let Some(data) =  substrate_kegg_row_parsing(td.html()) {
+                                }
+                                "Substrate" => {
+                                    if let Some(data) = substrate_kegg_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Product" =>   {
+                                }
+                                "Product" => {
                                     if let Some(data) = product_kegg_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Genes" =>  {
-                                    if let Some(data) =  genes_row_parsing(td.html()) {
+                                }
+                                "Genes" => {
+                                    if let Some(data) = genes_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Symbol" =>   {
+                                }
+                                "Symbol" => {
                                     if let Some(data) = symbol_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "Organism" =>  {
-                                    if let Some(data) =  orgnism_row_parsing(td.html()) {
+                                }
+                                "Organism" => {
+                                    if let Some(data) = orgnism_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "AA seq" =>  {
-                                    if let Some(data) =  aa_seq_row_parsing(td.html()) {
+                                }
+                                "AA seq" => {
+                                    if let Some(data) = aa_seq_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
-                                "NT seq" =>  {
-                                    if let Some(data) =  nt_seq_row_parsing(td.html()) {
+                                }
+                                "NT seq" => {
+                                    if let Some(data) = nt_seq_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
-                                },
+                                }
                                 _ => continue,
                             };
                             break;
@@ -150,30 +150,23 @@ impl Parser {
                         continue;
                     }
                 }
-
-                /* Парсим сиблинг в зависимости от имени в <th>  */
-                // println!("=================");
             }
         }
-        // otp_string.push('}');
         Some(otp_string)
     }
-    fn vec_string_to_json(vec_string: Vec<String>)->String{
+    async fn vec_string_to_json(vec_string: Vec<String>) -> String {
+        let mut tmp_otp = other_json::object! {};
 
-        let mut otp_string = String::new();
-        let reg = regex::Regex::new(r"\{.??\}").unwrap();
-
-        for elem in vec_string{
-            otp_string.push_str(reg.find(&elem)
-            .unwrap()
-            .as_str());
-
+        for elem in vec_string {
+            let tmp = other_json::parse(&elem).unwrap();
+            for (key, value) in tmp.entries() {
+                tmp_otp.insert(key, value.clone()).unwrap();
+            }
         }
-        otp_string
+        tmp_otp.dump()
     }
 
-    pub async fn get_json(url:&str) -> String{
-        Parser::vec_string_to_json(Parser::parse_kegg_to_string(url).await.unwrap())
-    } 
-
+    pub async fn get_json(url: &str) -> String {
+        Parser::vec_string_to_json(Parser::parse_kegg_to_string(url).await.unwrap()).await
+    }
 }
