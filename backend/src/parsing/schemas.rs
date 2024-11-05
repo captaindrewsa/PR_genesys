@@ -17,32 +17,41 @@ pub struct Enzyme{
 
 pub struct Reaction{
     Entry: String,
+    Type: String,
     Name: Vec<String>,
     Definition: std::collections::HashMap<String, Vec<String>>,
     Equation: std::collections::HashMap<String, Vec<String>>,
     Enzyme: Vec<String>,
-    Type: String,
 }
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct Compound{
     Entry: String,
+    Type: String,
     Name: Vec<String>,
     Formula: String,
     Reaction: Vec<String>,
     Enzyme: Vec<String>,
-    Type: String,
 }
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct CDS{
     Entry: String,
-    Symbol: Vec<String>,
+    Type: String,
     Name: Vec<String>,
+    Symbol: Vec<String>,
     Organism: Vec<String>,
     Pathway: Vec<Vec<String>>,
     Module: Vec<Vec<String>>,
     AA_seq: String,
     NT_seq: String,
-    Type: String,
+}
+
+#[derive(Debug)]
+pub enum kegg_schemas {
+    CDS(String),
+    Enzyme(String),
+    Reaction(String),
+    Compound(String),
+    Error(String)
 }

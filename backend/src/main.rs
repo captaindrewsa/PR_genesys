@@ -1,6 +1,6 @@
 #![allow(warnings)]
 mod parsing;
-use parsing::{schemas::CDS, Parser};
+use parsing::{schemas::{kegg_schemas, CDS}, Parser};
 
 use json;
 use serde_json;
@@ -14,11 +14,9 @@ use mongodb::{self, bson::{self, doc}};
 async fn main() {
     
     let url_kegg = "https://www.genome.jp/entry/hsa:5313";
-    let mut result_doc = Parser::get_json(&url_kegg).await;
+    let mut result_doc = Parser::get_kegg(&url_kegg).await;
 
-    let result_des: CDS = serde_json::from_str(&result_doc).unwrap();
-
-    // println!("{}", result_doc);
+    println!("{:?}", result_doc);
     
     
     let collection = "NewKegobb";
@@ -26,7 +24,8 @@ async fn main() {
     let client = mongodb::Client::with_uri_str(uri).await.unwrap();
     let dbs = client.database("kegobb");
     
-    dbs.collection::<parsing::schemas::CDS>(&collection).insert_one(result_des).await.unwrap();
+    // dbs.collection::<parsing::schemas::CDS>(&collection).insert_one(result_des).await.unwrap();
     
     
 }
+

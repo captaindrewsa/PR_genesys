@@ -5,6 +5,7 @@ use parsers::*;
 use json as other_json;
 use regex;
 use reqwest;
+use schemas::{kegg_schemas, Enzyme, CDS};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json::{self, json};
@@ -155,19 +156,29 @@ impl Parser {
         }
         Some(otp_string)
     }
-    async fn vec_string_to_json(vec_string: Vec<String>) -> String {
+    async fn vec_string_to_kegg_schemas(vec_string: Vec<String>) -> kegg_schemas {
+        
         let mut tmp_otp = other_json::object! {};
 
+        //Собираем JsonValue из вектора
         for elem in vec_string {
             let tmp = other_json::parse(&elem).unwrap();
             for (key, value) in tmp.entries() {                
                 tmp_otp.insert(key, value.clone()).unwrap();
             }
         }
-        tmp_otp.dump()
+        
+        // Десереализуем JsonValue согласно Type
+        match tmp_otp["Type"].take_string().unwrap().as_str()  {
+            "CDS" => kegg_schemas::CDS(tmp_otp.dump()),
+            "Enzyme" => kegg_schemas::Enzyme(tmp_otp.dump()),
+            "Reaction" => kegg_schemas::Reaction(tmp_otp.dump()),
+            "Compound" => kegg_schemas::Compound(tmp_otp.dump()),
+            _=> kegg_schemas::Error("Type is incorected".to_string())
+        }
     }
 
-    pub async fn get_json(url: &str) -> String {
-        Parser::vec_string_to_json(Parser::parse_kegg_to_string(url).await.unwrap()).await
+    pub async fn get_kegg(url: &str) -> kegg_schemas {
+        Parser::vec_string_to_kegg_schemas(Parser::parse_kegg_to_string(url).await.unwrap()).await
     }
 }
