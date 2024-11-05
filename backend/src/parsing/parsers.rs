@@ -14,7 +14,7 @@ pub fn entry_row_parsing(html: String) -> Option<String> {
     let fragment = Html::parse_fragment(&html);
     let span_sel = Selector::parse("table.w1 td.tal span").unwrap();
 
-    let reg_entry = regex::Regex::new(r"[A-Z]{0,2}\s??[0-9\.]{5,16}").unwrap();
+    let reg_entry = regex::Regex::new(r"[A-Z]{0,2}\s??[0-9\.]{4,16}").unwrap();
     let reg_type = regex::Regex::new(r"[A-Za-z]{3,15}").unwrap();
 
     let mut word_list = fragment

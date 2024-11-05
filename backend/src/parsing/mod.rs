@@ -1,3 +1,4 @@
+pub mod schemas;
 mod parsers;
 use parsers::*;
 
@@ -159,7 +160,7 @@ impl Parser {
 
         for elem in vec_string {
             let tmp = other_json::parse(&elem).unwrap();
-            for (key, value) in tmp.entries() {
+            for (key, value) in tmp.entries() {                
                 tmp_otp.insert(key, value.clone()).unwrap();
             }
         }
