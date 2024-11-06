@@ -70,3 +70,8 @@ pub struct equation {
     pub Substrate: Vec<String>,
     pub Product: Vec<String>,
 }
+
+pub enum databaseQuery {
+    Ok,
+    Error(String),
+}

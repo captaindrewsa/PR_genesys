@@ -175,16 +175,14 @@ impl IParser for Parser {
 
         // Десереализуем JsonValue и дальше проверяем согласно Type
         match &tmp_otp.get("Type").unwrap() {
-            Bson::String(var) => {
-                match var.as_str() {
-                    "CDS" => kegg_schemas::CDS(bson::Bson::Document(tmp_otp)),
-                    "Reaction" => kegg_schemas::Reaction(bson::Bson::Document(tmp_otp)),
-                    "Compound" => kegg_schemas::Compound(bson::Bson::Document(tmp_otp)),
-                    "Enzyme" => kegg_schemas::Enzyme(bson::Bson::Document(tmp_otp)),
-                    _=> kegg_schemas::Error("Type is not defind".to_string()),
-                }
-            }
-            _ => kegg_schemas::Error("Not string type".to_string())
+            Bson::String(var) => match var.as_str() {
+                "CDS" => kegg_schemas::CDS(bson::Bson::Document(tmp_otp)),
+                "Reaction" => kegg_schemas::Reaction(bson::Bson::Document(tmp_otp)),
+                "Compound" => kegg_schemas::Compound(bson::Bson::Document(tmp_otp)),
+                "Enzyme" => kegg_schemas::Enzyme(bson::Bson::Document(tmp_otp)),
+                _ => kegg_schemas::Error("Type is not defind".to_string()),
+            },
+            _ => kegg_schemas::Error("Not string type".to_string()),
         }
     }
 
