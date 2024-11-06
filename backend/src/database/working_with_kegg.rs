@@ -11,9 +11,8 @@ impl workingWithKegg for Kegg_database {
     ) -> Result<schemas::databaseQuery, schemas::databaseQuery> {
         match kegg_sh {
             kegg_schemas::CDS(var) => {
-                let var_des: schemas::CDS = bson::from_bson(var).unwrap();
-
-                let var_entry = var_des.Entry.clone();
+                let var_des = var.as_document().unwrap();
+                let var_entry = var_des.get_str("Entry").unwrap();
 
                 self.database
                     .collection("CDS")
@@ -26,8 +25,8 @@ impl workingWithKegg for Kegg_database {
                     .unwrap();
             }
             kegg_schemas::Enzyme(var) => {
-                let var_des: schemas::Enzyme = bson::from_bson(var).unwrap();
-                let var_entry = var_des.Entry.clone();
+                let var_des = var.as_document().unwrap();
+                let var_entry = var_des.get_str("Entry").unwrap();
 
                 self.database
                     .collection("Enzyme")
@@ -40,8 +39,8 @@ impl workingWithKegg for Kegg_database {
                     .unwrap();
             }
             kegg_schemas::Reaction(var) => {
-                let var_des: schemas::Reaction = bson::from_bson(var).unwrap();
-                let var_entry = var_des.Entry.clone();
+                let var_des = var.as_document().unwrap();
+                let var_entry = var_des.get_str("Entry").unwrap();
 
                 self.database
                     .collection("Reaction")
@@ -54,9 +53,9 @@ impl workingWithKegg for Kegg_database {
                     .unwrap();
             }
             kegg_schemas::Compound(var) => {
-                let var_des: schemas::Compound = bson::from_bson(var).unwrap();
-                let var_entry = var_des.Entry.clone();
-
+                let var_des = var.as_document().unwrap();
+                let var_entry = var_des.get_str("Entry").unwrap();
+                
                 self.database
                     .collection("Compound")
                     .find_one_and_replace(
