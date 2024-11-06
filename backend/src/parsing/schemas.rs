@@ -1,21 +1,21 @@
+use bson::Bson;
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Enzyme{
+pub struct Enzyme {
     Entry: String,
     Type: String,
     Name: Vec<String>,
     Reaction_KEGG: Vec<String>,
     Substrate: Vec<String>,
     Product: Vec<String>,
-    Pathway: Vec<String>,
+    Pathway: Vec<Vec<String>>,
     Genes: std::collections::HashMap<String, Vec<String>>,
-    Reaction_IUBMB: Vec<String>
+    Reaction_IUBMB: Vec<String>,
 }
 #[derive(Serialize, Deserialize, Debug)]
 
-pub struct Reaction{
+pub struct Reaction {
     Entry: String,
     Type: String,
     Name: Vec<String>,
@@ -25,7 +25,7 @@ pub struct Reaction{
 }
 #[derive(Serialize, Deserialize, Debug)]
 
-pub struct Compound{
+pub struct Compound {
     Entry: String,
     Type: String,
     Name: Vec<String>,
@@ -35,7 +35,7 @@ pub struct Compound{
 }
 #[derive(Serialize, Deserialize, Debug)]
 
-pub struct CDS{
+pub struct CDS {
     Entry: String,
     Type: String,
     Name: Vec<String>,
@@ -49,9 +49,9 @@ pub struct CDS{
 
 #[derive(Debug)]
 pub enum kegg_schemas {
-    CDS(String),
-    Enzyme(String),
-    Reaction(String),
-    Compound(String),
-    Error(String)
+    CDS(Bson),
+    Enzyme(Bson),
+    Reaction(Bson),
+    Compound(Bson),
+    Error(String),
 }

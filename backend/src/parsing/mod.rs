@@ -1,21 +1,28 @@
-pub mod schemas;
 mod parsers;
+pub mod schemas;
+use bson::{doc, Bson};
 use parsers::*;
 
-use json as other_json;
+use json::{self as other_json, object};
 use regex;
 use reqwest;
 use schemas::{kegg_schemas, Enzyme, CDS};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json::{self, json};
-use std::{collections::HashMap, str::FromStr};
+use std::{borrow::Borrow, collections::HashMap, str::FromStr};
 use tokio;
 
 pub struct Parser {}
 
-impl Parser {
-    async fn parse_kegg_to_string(kegg_url: &str) -> Option<Vec<String>> {
+pub trait IParser {
+    async fn parse_kegg_to_string(kegg_url: &str) -> Option<Vec<Bson>>;
+    async fn vec_bson_to_kegg_schemas(vec_bson: Vec<Bson>) -> kegg_schemas;
+    async fn get_kegg(url: &str) -> kegg_schemas;
+}
+
+impl IParser for Parser {
+    async fn parse_kegg_to_string(kegg_url: &str) -> Option<Vec<Bson>> {
         let mut otp_string = Vec::new();
 
         let resp = reqwest::get(kegg_url).await.unwrap().text().await.unwrap();
@@ -156,29 +163,32 @@ impl Parser {
         }
         Some(otp_string)
     }
-    async fn vec_string_to_kegg_schemas(vec_string: Vec<String>) -> kegg_schemas {
-        
-        let mut tmp_otp = other_json::object! {};
+    async fn vec_bson_to_kegg_schemas(vec_bson: Vec<Bson>) -> kegg_schemas {
+        let mut tmp_otp = doc! {};
 
-        //Собираем JsonValue из вектора
-        for elem in vec_string {
-            let tmp = other_json::parse(&elem).unwrap();
-            for (key, value) in tmp.entries() {                
-                tmp_otp.insert(key, value.clone()).unwrap();
+        //Собираем Document из вектора
+        for elem in vec_bson {
+            for (key, value) in elem.as_document().unwrap() {
+                tmp_otp.insert(key, value);
             }
         }
-        
-        // Десереализуем JsonValue согласно Type
-        match tmp_otp["Type"].take_string().unwrap().as_str()  {
-            "CDS" => kegg_schemas::CDS(tmp_otp.dump()),
-            "Enzyme" => kegg_schemas::Enzyme(tmp_otp.dump()),
-            "Reaction" => kegg_schemas::Reaction(tmp_otp.dump()),
-            "Compound" => kegg_schemas::Compound(tmp_otp.dump()),
-            _=> kegg_schemas::Error("Type is incorected".to_string())
+
+        // Десереализуем JsonValue и дальше проверяем согласно Type
+        match &tmp_otp.get("Type").unwrap() {
+            Bson::String(var) => {
+                match var.as_str() {
+                    "CDS" => kegg_schemas::CDS(bson::Bson::Document(tmp_otp)),
+                    "Reaction" => kegg_schemas::Reaction(bson::Bson::Document(tmp_otp)),
+                    "Compound" => kegg_schemas::Compound(bson::Bson::Document(tmp_otp)),
+                    "Enzyme" => kegg_schemas::Enzyme(bson::Bson::Document(tmp_otp)),
+                    _=> kegg_schemas::Error("Type is not defind".to_string()),
+                }
+            }
+            _ => kegg_schemas::Error("Not string type".to_string())
         }
     }
 
-    pub async fn get_kegg(url: &str) -> kegg_schemas {
-        Parser::vec_string_to_kegg_schemas(Parser::parse_kegg_to_string(url).await.unwrap()).await
+    async fn get_kegg(url: &str) -> kegg_schemas {
+        Parser::vec_bson_to_kegg_schemas(Parser::parse_kegg_to_string(url).await.unwrap()).await
     }
 }
