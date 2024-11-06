@@ -92,7 +92,7 @@ pub mod WorkingWithKegg {
                     let var_des: schemas::CDS = bson::from_bson(var).unwrap();
                     
                     self.database
-                        .collection::<schemas::CDS>(&self.kegg_collection)
+                        .collection(&self.kegg_collection)
                         .insert_one(var_des)
                         .await
                         .unwrap();
@@ -104,7 +104,7 @@ pub mod WorkingWithKegg {
                     let var_des: schemas::Enzyme = bson::from_bson(var).unwrap();
                     
                     self.database
-                        .collection::<schemas::Enzyme>(&self.kegg_collection)
+                        .collection(&self.kegg_collection)
                         .insert_one(var_des)
                         .await
                         .unwrap();
@@ -113,7 +113,7 @@ pub mod WorkingWithKegg {
                     let var_des: schemas::Reaction = bson::from_bson(var).unwrap();
    
                     self.database
-                        .collection::<schemas::Reaction>(&self.kegg_collection)
+                        .collection(&self.kegg_collection)
                         .insert_one(var_des)
                         .await
                         .unwrap();
@@ -121,7 +121,7 @@ pub mod WorkingWithKegg {
                 kegg_schemas::Compound(var) => {
                     let var_des: schemas::Compound = bson::from_bson(var).unwrap();
                     self.database
-                        .collection::<schemas::Compound>(&self.kegg_collection)
+                        .collection(&self.kegg_collection)
                         .insert_one(var_des)
                         .await
                         .unwrap();
