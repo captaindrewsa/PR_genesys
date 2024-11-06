@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashMap;
 
+use crate::parsing::schemas;
+
 pub fn entry_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -281,13 +283,7 @@ pub fn module_row_parsing(html: String) -> Option<Bson> {
 pub fn definition_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
-        Definition: definition,
-    }
-    #[derive(Serialize, Deserialize, Debug)]
-    struct definition {
-        Substrate: Vec<String>,
-        Product: Vec<String>,
-        Reversible: bool,
+        Definition: schemas::definition,
     }
 
     let fragment = Html::parse_fragment(&html);
@@ -300,8 +296,6 @@ pub fn definition_row_parsing(html: String) -> Option<Bson> {
         .text()
         .map(|word| word.trim().to_string())
         .collect::<String>();
-
-    let reversible = definition_string.contains("<=>");
 
     let reagents = definition_string
         .split("<=>")
@@ -317,10 +311,9 @@ pub fn definition_row_parsing(html: String) -> Option<Bson> {
         .map(|var| var.trim().to_string())
         .collect::<Vec<String>>();
 
-    let tmp_otp = definition {
+    let tmp_otp = schemas::definition {
         Substrate: substrate,
         Product: products,
-        Reversible: reversible,
     };
 
     let tmp_otp = otp_struct {
@@ -332,13 +325,7 @@ pub fn definition_row_parsing(html: String) -> Option<Bson> {
 pub fn equation_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
-        Equation: equation,
-    }
-
-    #[derive(Serialize, Deserialize, Debug)]
-    struct equation {
-        Substrate: Vec<String>,
-        Product: Vec<String>,
+        Equation: schemas::equation,
     }
 
     let fragment = Html::parse_fragment(&html);
@@ -363,7 +350,7 @@ pub fn equation_row_parsing(html: String) -> Option<Bson> {
         })
         .collect::<Vec<Vec<String>>>();
 
-    let tmp_otp = equation {
+    let tmp_otp = schemas::equation {
         Substrate: reagents[0].clone(),
         Product: reagents[1].clone(),
     };

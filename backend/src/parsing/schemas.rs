@@ -1,50 +1,52 @@
+use std::collections::HashMap;
+
 use bson::Bson;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Enzyme {
-    Entry: String,
-    Type: String,
-    Name: Vec<String>,
-    Reaction_KEGG: Vec<String>,
-    Substrate: Vec<String>,
-    Product: Vec<String>,
-    Pathway: Vec<Vec<String>>,
-    Genes: std::collections::HashMap<String, Vec<String>>,
-    Reaction_IUBMB: Vec<String>,
+    pub Entry: String,
+    pub Type: String,
+    pub Name: Vec<String>,
+    pub Reaction_KEGG: Vec<String>,
+    pub Substrate: Vec<String>,
+    pub Product: Vec<String>,
+    pub Pathway: Vec<Vec<String>>,
+    pub Genes: std::collections::HashMap<String, Vec<String>>,
+    pub Reaction_IUBMB: Vec<String>,
 }
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct Reaction {
-    Entry: String,
-    Type: String,
-    Name: Vec<String>,
-    Definition: std::collections::HashMap<String, Vec<String>>,
-    Equation: std::collections::HashMap<String, Vec<String>>,
-    Enzyme: Vec<String>,
+    pub Entry: String,
+    pub Type: String,
+    pub Name: Vec<String>,
+    pub Definition: std::collections::HashMap<String, Vec<String>>,
+    pub Equation: std::collections::HashMap<String, Vec<String>>,
+    pub Enzyme: Vec<String>,
 }
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct Compound {
-    Entry: String,
-    Type: String,
-    Name: Vec<String>,
-    Formula: String,
-    Reaction: Vec<String>,
-    Enzyme: Vec<String>,
+    pub Entry: String,
+    pub Type: String,
+    pub Name: Vec<String>,
+    pub Formula: String,
+    pub Reaction: Vec<String>,
+    pub Enzyme: Vec<String>,
 }
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct CDS {
-    Entry: String,
-    Type: String,
-    Name: Vec<String>,
-    Symbol: Vec<String>,
-    Organism: Vec<String>,
-    Pathway: Vec<Vec<String>>,
-    Module: Vec<Vec<String>>,
-    AA_seq: String,
-    NT_seq: String,
+    pub Entry: String,
+    pub Type: String,
+    pub Name: Vec<String>,
+    pub Symbol: Vec<String>,
+    pub Organism: Vec<String>,
+    pub Pathway: Vec<Vec<String>>,
+    pub Module: Vec<Vec<String>>,
+    pub AA_seq: String,
+    pub NT_seq: String,
 }
 
 #[derive(Debug)]
@@ -54,4 +56,17 @@ pub enum kegg_schemas {
     Reaction(Bson),
     Compound(Bson),
     Error(String),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+
+pub struct definition {
+    pub Substrate: Vec<String>,
+    pub Product: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct equation {
+    pub Substrate: Vec<String>,
+    pub Product: Vec<String>,
 }
