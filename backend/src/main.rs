@@ -1,17 +1,14 @@
 #![allow(warnings)]
 mod parsing;
+mod database;
+
 use parsing::{
     schemas::{kegg_schemas, CDS},
     IParser, Parser,
 };
-mod database;
+
 use database::db::{self, workingWithKegg, Kegg_database};
-
-use json;
-use serde_json;
-
 use tokio;
-
 use mongodb::{
     self,
     bson::{self, doc},
@@ -26,16 +23,14 @@ async fn main() {
         "https://www.genome.jp/entry/hsa:5315",
     ];
 
-    let mut asdasd = Kegg_database {
+    let mut dabas = Kegg_database {
         database: mongodb::Client::with_uri_str("mongodb://127.0.0.1:27017")
             .await
             .unwrap()
-            .database("kegobb"),
-        kegg_collection: "NewKegobb",
+            .database("kegobb")
     };
 
     for elem in url_kegg {
-        let mut dabas = asdasd.clone();
         let tmp_doc = Parser::get_kegg(elem).await;
         match dabas.add_kegg(tmp_doc).await {
             Ok(_) => println!("Добавили"),

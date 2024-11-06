@@ -10,7 +10,6 @@ use crate::parsing::{
 #[derive(Clone)]
 pub struct Kegg_database {
     pub database: mongodb::Database,
-    pub kegg_collection: &'static str,
 }
 
 pub trait workingWithKegg {

@@ -16,7 +16,7 @@ impl workingWithKegg for Kegg_database {
                 let var_entry = var_des.Entry.clone();
 
                 self.database
-                    .collection(&self.kegg_collection)
+                    .collection("CDS")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
                         bson::to_bson(&var_des).unwrap(),
@@ -30,7 +30,7 @@ impl workingWithKegg for Kegg_database {
                 let var_entry = var_des.Entry.clone();
 
                 self.database
-                    .collection(&self.kegg_collection)
+                    .collection("Enzyme")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
                         bson::to_bson(&var_des).unwrap(),
@@ -40,12 +40,11 @@ impl workingWithKegg for Kegg_database {
                     .unwrap();
             }
             kegg_schemas::Reaction(var) => {
-                // println!("=====\n{:?}\n======", var.as_document().unwrap().to_string());
                 let var_des: schemas::Reaction = bson::from_bson(var).unwrap();
                 let var_entry = var_des.Entry.clone();
 
                 self.database
-                    .collection(&self.kegg_collection)
+                    .collection("Reaction")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
                         bson::to_bson(&var_des).unwrap(),
@@ -59,7 +58,7 @@ impl workingWithKegg for Kegg_database {
                 let var_entry = var_des.Entry.clone();
 
                 self.database
-                    .collection(&self.kegg_collection)
+                    .collection("Compound")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
                         bson::to_bson(&var_des).unwrap(),
