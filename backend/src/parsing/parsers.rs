@@ -1,10 +1,13 @@
+use bson::Bson;
 use regex;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashMap;
 
-pub fn entry_row_parsing(html: String) -> Option<String> {
+use crate::parsing::schemas;
+
+pub fn entry_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Entry: String,
@@ -15,7 +18,7 @@ pub fn entry_row_parsing(html: String) -> Option<String> {
     let span_sel = Selector::parse("table.w1 td.tal span").unwrap();
 
     let reg_entry = regex::Regex::new(r"[A-Z]{0,2}\s??[0-9\.]{4,16}").unwrap();
-    let reg_type = regex::Regex::new(r"[A-Za-z]{3,15}").unwrap();
+    let reg_type = regex::Regex::new(r"[A-Za-z]{3,8}").unwrap();
 
     let mut word_list = fragment
         .select(&span_sel)
@@ -35,9 +38,9 @@ pub fn entry_row_parsing(html: String) -> Option<String> {
         Type: word_list[1].clone().to_string(),
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn name_row_parsing(html: String) -> Option<String> {
+pub fn name_row_parsing(html: String) -> Option<Bson> {
     /* Парсим блок напротив Name в Compound */
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -63,9 +66,9 @@ pub fn name_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { Name: name_list };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn formula_row_parsing(html: String) -> Option<String> {
+pub fn formula_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Formula: String,
@@ -87,9 +90,9 @@ pub fn formula_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { Formula: formula };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn exact_mass_row_parsing(html: String) -> Option<String> {
+pub fn exact_mass_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Exact_mass: f32,
@@ -112,9 +115,9 @@ pub fn exact_mass_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { Exact_mass: mass };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn mol_weight_row_parsing(html: String) -> Option<String> {
+pub fn mol_weight_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Mol_weight: f32,
@@ -137,9 +140,9 @@ pub fn mol_weight_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { Mol_weight: weight };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn reaction_row_parsing(html: String) -> Option<String> {
+pub fn reaction_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Reaction: Vec<String>,
@@ -167,9 +170,9 @@ pub fn reaction_row_parsing(html: String) -> Option<String> {
         Reaction: reaction_list,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn enzyme_row_parsing(html: String) -> Option<String> {
+pub fn enzyme_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Enzyme: Vec<String>,
@@ -197,9 +200,9 @@ pub fn enzyme_row_parsing(html: String) -> Option<String> {
         Enzyme: enzymes_list,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn pathway_row_parsing(html: String) -> Option<String> {
+pub fn pathway_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -236,9 +239,9 @@ pub fn pathway_row_parsing(html: String) -> Option<String> {
         Pathway: final_vec_of_map,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn module_row_parsing(html: String) -> Option<String> {
+pub fn module_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -275,18 +278,12 @@ pub fn module_row_parsing(html: String) -> Option<String> {
         Module: final_vec_of_module,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn definition_row_parsing(html: String) -> Option<String> {
+pub fn definition_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
-        Definition: definition,
-    }
-    #[derive(Serialize, Deserialize, Debug)]
-    struct definition {
-        Substrate: Vec<String>,
-        Product: Vec<String>,
-        Reversible: bool,
+        Definition: schemas::definition,
     }
 
     let fragment = Html::parse_fragment(&html);
@@ -299,8 +296,6 @@ pub fn definition_row_parsing(html: String) -> Option<String> {
         .text()
         .map(|word| word.trim().to_string())
         .collect::<String>();
-
-    let reversible = definition_string.contains("<=>");
 
     let reagents = definition_string
         .split("<=>")
@@ -316,28 +311,21 @@ pub fn definition_row_parsing(html: String) -> Option<String> {
         .map(|var| var.trim().to_string())
         .collect::<Vec<String>>();
 
-    let tmp_otp = definition {
+    let tmp_otp = schemas::definition {
         Substrate: substrate,
         Product: products,
-        Reversible: reversible,
     };
 
-    let otp = otp_struct {
+    let tmp_otp = otp_struct {
         Definition: tmp_otp,
     };
 
-    Some(serde_json::to_string(&otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn equation_row_parsing(html: String) -> Option<String> {
+pub fn equation_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
-        Equation: equation,
-    }
-
-    #[derive(Serialize, Deserialize, Debug)]
-    struct equation {
-        Substrate: Vec<String>,
-        Product: Vec<String>,
+        Equation: schemas::equation,
     }
 
     let fragment = Html::parse_fragment(&html);
@@ -362,16 +350,16 @@ pub fn equation_row_parsing(html: String) -> Option<String> {
         })
         .collect::<Vec<Vec<String>>>();
 
-    let tmp_otp = equation {
+    let tmp_otp = schemas::equation {
         Substrate: reagents[0].clone(),
         Product: reagents[1].clone(),
     };
 
-    let otp_struct = otp_struct { Equation: tmp_otp };
+    let tmp_otp = otp_struct { Equation: tmp_otp };
 
-    Some(serde_json::to_string(&otp_struct).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn reaction_iubmb_row_parsing(html: String) -> Option<String> {
+pub fn reaction_iubmb_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Reaction_IUBMB: Vec<String>,
@@ -394,9 +382,9 @@ pub fn reaction_iubmb_row_parsing(html: String) -> Option<String> {
         Reaction_IUBMB: list_reactions,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn reaction_kegg_row_parsing(html: String) -> Option<String> {
+pub fn reaction_kegg_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Reaction_KEGG: Vec<String>,
@@ -419,9 +407,9 @@ pub fn reaction_kegg_row_parsing(html: String) -> Option<String> {
         Reaction_KEGG: list_reactions,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn substrate_kegg_row_parsing(html: String) -> Option<String> {
+pub fn substrate_kegg_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Substrate: Vec<String>,
@@ -444,9 +432,9 @@ pub fn substrate_kegg_row_parsing(html: String) -> Option<String> {
         Substrate: list_substrate,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn product_kegg_row_parsing(html: String) -> Option<String> {
+pub fn product_kegg_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Product: Vec<String>,
@@ -469,9 +457,9 @@ pub fn product_kegg_row_parsing(html: String) -> Option<String> {
         Product: list_product,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn genes_row_parsing(html: String) -> Option<String> {
+pub fn genes_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -514,9 +502,9 @@ pub fn genes_row_parsing(html: String) -> Option<String> {
         Genes: final_map_of_module,
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn symbol_row_parsing(html: String) -> Option<String> {
+pub fn symbol_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Symbol: Vec<String>,
@@ -538,9 +526,9 @@ pub fn symbol_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { Symbol: tmp_vec };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn orgnism_row_parsing(html: String) -> Option<String> {
+pub fn orgnism_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Organism: Vec<String>,
@@ -564,9 +552,9 @@ pub fn orgnism_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { Organism: tmp_vec };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn aa_seq_row_parsing(html: String) -> Option<String> {
+pub fn aa_seq_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         AA_seq: String,
@@ -589,9 +577,9 @@ pub fn aa_seq_row_parsing(html: String) -> Option<String> {
         AA_seq: reg.find(&tmp).unwrap().as_str().to_string(),
     };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }
-pub fn nt_seq_row_parsing(html: String) -> Option<String> {
+pub fn nt_seq_row_parsing(html: String) -> Option<Bson> {
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         NT_seq: String,
@@ -619,5 +607,5 @@ pub fn nt_seq_row_parsing(html: String) -> Option<String> {
 
     let tmp_otp = otp_struct { NT_seq: tmp };
 
-    Some(serde_json::to_string(&tmp_otp).unwrap())
+    Some(bson::to_bson(&tmp_otp).unwrap())
 }

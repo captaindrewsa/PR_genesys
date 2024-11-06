@@ -1,32 +1,45 @@
 #![allow(warnings)]
 mod parsing;
-use parsing::{schemas::CDS, Parser};
+use parsing::{
+    schemas::{kegg_schemas, CDS},
+    IParser, Parser,
+};
+mod database;
+use database::db::{self, workingWithKegg, Kegg_database};
 
 use json;
 use serde_json;
 
 use tokio;
 
-use mongodb::{self, bson::{self, doc}};
-
+use mongodb::{
+    self,
+    bson::{self, doc},
+};
 
 #[tokio::main]
 async fn main() {
-    
-    let url_kegg = "https://www.genome.jp/entry/hsa:5313";
-    let mut result_doc = Parser::get_json(&url_kegg).await;
+    let url_kegg = vec![
+        "https://www.genome.jp/entry/2.7.1.40",
+        "https://www.genome.jp/entry/R00200",
+        "https://www.genome.jp/entry/C00002",
+        "https://www.genome.jp/entry/hsa:5315",
+    ];
 
-    let result_des: CDS = serde_json::from_str(&result_doc).unwrap();
+    let mut asdasd = Kegg_database {
+        database: mongodb::Client::with_uri_str("mongodb://127.0.0.1:27017")
+            .await
+            .unwrap()
+            .database("kegobb"),
+        kegg_collection: "NewKegobb",
+    };
 
-    // println!("{}", result_doc);
-    
-    
-    let collection = "NewKegobb";
-    let uri = "mongodb://127.0.0.1:27017";
-    let client = mongodb::Client::with_uri_str(uri).await.unwrap();
-    let dbs = client.database("kegobb");
-    
-    dbs.collection::<parsing::schemas::CDS>(&collection).insert_one(result_des).await.unwrap();
-    
-    
+    for elem in url_kegg {
+        let mut dabas = asdasd.clone();
+        let tmp_doc = Parser::get_kegg(elem).await;
+        match dabas.add_kegg(tmp_doc).await {
+            Ok(_) => println!("Добавили"),
+            Err(_) => println!("Наошибили"),
+        };
+    }
 }
