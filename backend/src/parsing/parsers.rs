@@ -1,4 +1,5 @@
 use bson::Bson;
+use log::info;
 use regex;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
@@ -8,6 +9,7 @@ use std::collections::HashMap;
 use crate::parsing::schemas;
 
 pub fn entry_row_parsing(html: String) -> Option<Bson> {
+    info!("Парсим entry");
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Entry: String,

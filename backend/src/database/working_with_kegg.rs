@@ -1,4 +1,5 @@
 use bson::doc;
+use log::info;
 
 use crate::parsing::schemas::{self, databaseQuery, kegg_schemas};
 
@@ -9,6 +10,7 @@ impl workingWithKegg for Kegg_database {
         &mut self,
         kegg_sh: kegg_schemas,
     ) -> Result<schemas::databaseQuery, schemas::databaseQuery> {
+        info!("Начинаем добавлять кегг в базу данных");
         match kegg_sh {
             kegg_schemas::CDS(var) => {
                 let var_des = var.as_document().unwrap();
@@ -55,7 +57,7 @@ impl workingWithKegg for Kegg_database {
             kegg_schemas::Compound(var) => {
                 let var_des = var.as_document().unwrap();
                 let var_entry = var_des.get_str("Entry").unwrap();
-                
+
                 self.database
                     .collection("Compound")
                     .find_one_and_replace(
