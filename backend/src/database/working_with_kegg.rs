@@ -1,4 +1,5 @@
 use bson::doc;
+use log::info;
 
 use crate::parsing::schemas::{self, databaseQuery, kegg_schemas};
 
@@ -9,14 +10,14 @@ impl workingWithKegg for Kegg_database {
         &mut self,
         kegg_sh: kegg_schemas,
     ) -> Result<schemas::databaseQuery, schemas::databaseQuery> {
+        info!("Начинаем добавлять кегг в базу данных");
         match kegg_sh {
             kegg_schemas::CDS(var) => {
-                let var_des: schemas::CDS = bson::from_bson(var).unwrap();
-
-                let var_entry = var_des.Entry.clone();
+                let var_des = var.as_document().unwrap();
+                let var_entry = var_des.get_str("Entry").unwrap();
 
                 self.database
-                    .collection(&self.kegg_collection)
+                    .collection("CDS")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
                         bson::to_bson(&var_des).unwrap(),
@@ -26,11 +27,11 @@ impl workingWithKegg for Kegg_database {
                     .unwrap();
             }
             kegg_schemas::Enzyme(var) => {
-                let var_des: schemas::Enzyme = bson::from_bson(var).unwrap();
-                let var_entry = var_des.Entry.clone();
+                let var_des = var.as_document().unwrap();
+                let var_entry = var_des.get_str("Entry").unwrap();
 
                 self.database
-                    .collection(&self.kegg_collection)
+                    .collection("Enzyme")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
                         bson::to_bson(&var_des).unwrap(),
@@ -40,12 +41,11 @@ impl workingWithKegg for Kegg_database {
                     .unwrap();
             }
             kegg_schemas::Reaction(var) => {
-                // println!("=====\n{:?}\n======", var.as_document().unwrap().to_string());
-                let var_des: schemas::Reaction = bson::from_bson(var).unwrap();
-                let var_entry = var_des.Entry.clone();
+                let var_des = var.as_document().unwrap();
+                let var_entry = var_des.get_str("Entry").unwrap();
 
                 self.database
-                    .collection(&self.kegg_collection)
+                    .collection("Reaction")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
                         bson::to_bson(&var_des).unwrap(),
@@ -55,11 +55,11 @@ impl workingWithKegg for Kegg_database {
                     .unwrap();
             }
             kegg_schemas::Compound(var) => {
-                let var_des: schemas::Compound = bson::from_bson(var).unwrap();
-                let var_entry = var_des.Entry.clone();
+                let var_des = var.as_document().unwrap();
+                let var_entry = var_des.get_str("Entry").unwrap();
 
                 self.database
-                    .collection(&self.kegg_collection)
+                    .collection("Compound")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
                         bson::to_bson(&var_des).unwrap(),
