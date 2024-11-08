@@ -31,10 +31,8 @@ async fn main() {
         WriteLogger::new(log::LevelFilter::Trace, log_config.clone(), File::create("my_log_test.log").unwrap())
     ]).unwrap();
 
-    info!("Start programm");
-
     let url_kegg = vec![
-        "https://www.genome.jp/entry/1.1.1.27",
+        "https://www.genome.jp/entry/7.2.2.13",
         // "https://www.genome.jp/entry/1.14.14.51",
         // "https://www.genome.jp/entry/1.1.3.8",
         // "https://www.genome.jp/entry/4.1.3.3",
@@ -54,12 +52,9 @@ async fn main() {
         let tmp_doc = Parser::get_kegg(elem).await;
         match dabas.add_kegg(tmp_doc).await {
             Ok(_) => {
-                trace!("Тест трейса");
-                info!(target: "sdasd", "Добавили объект в бд");
                 continue;
             }
             Err(_) => {
-                warn!("Наошибили");
                 continue;
             }
         };

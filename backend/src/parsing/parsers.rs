@@ -1,20 +1,22 @@
 use bson::Bson;
-use log::info;
+use log::{info, trace, warn};
 use regex;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::collections::HashMap;
+use std::{collections::HashMap, vec};
 
 use crate::parsing::schemas;
 
 pub fn entry_row_parsing(html: String) -> Option<Bson> {
-    info!("Парсим entry");
+    trace!("Инициировали парсинг поля Entry");
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Entry: String,
         Type: String,
     }
+
+    
 
     let fragment = Html::parse_fragment(&html);
     let span_sel = Selector::parse("table.w1 td.tal span").unwrap();
@@ -22,28 +24,37 @@ pub fn entry_row_parsing(html: String) -> Option<Bson> {
     let reg_entry = regex::Regex::new(r"[A-Z]{0,2}\s??[0-9\.]{4,16}").unwrap();
     let reg_type = regex::Regex::new(r"[A-Za-z]{3,8}").unwrap();
 
-    let mut word_list = fragment
-        .select(&span_sel)
-        .next()
-        .unwrap()
-        .text()
+    
+    let mut word_list = {
+        if let Some(elem) = fragment.select(&span_sel).next(){
+            trace!("Scraper распознал поле Entry");
+            elem.text()
         .map(|word| word.trim().to_string())
-        .collect::<Vec<String>>();
+        .collect::<Vec<String>>()
+    } else {
+        warn!("Scraper не распознал поле Entry");
+        vec![]
+    }};
+    
 
-    let word_list = vec![
+    let word_list = {
+        trace!("Распознавание Entry и Type в списке");
+        vec![
         reg_entry.find(&word_list[0]).unwrap().as_str(),
         reg_type.find(&word_list[0]).unwrap().as_str(),
-    ];
+    ]};
 
     let tmp_otp = otp_struct {
         Entry: word_list[0].clone().to_string(),
         Type: word_list[1].clone().to_string(),
     };
 
+    trace!("Поле Entry обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn name_row_parsing(html: String) -> Option<Bson> {
     /* Парсим блок напротив Name в Compound */
+    trace!("Инициировали парсинг поля Name");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -53,18 +64,25 @@ pub fn name_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-    let name_list = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<Vec<String>>()
-        .join("")
-        .trim()
-        .split(";")
-        .map(|word| word.trim().to_string())
-        .collect::<Vec<String>>();
+
+    let name_list = {
+        if let Some(elem) = fragment.select(&div_cell_sel).next(){
+            trace!("Scraper распознал поле ");
+            elem
+            .text()
+            .map(|word| word.to_string())
+            .collect::<Vec<String>>()
+            .join("")
+            .trim()
+            .split(";")
+            .map(|word| word.trim().to_string())
+            .collect::<Vec<String>>()
+
+
+        } else {
+            warn!("Scraper не распознал поле Entry");
+            vec![]
+        }};
 
     let tmp_otp = otp_struct { Name: name_list };
 

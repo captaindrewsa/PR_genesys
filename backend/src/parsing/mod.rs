@@ -1,6 +1,7 @@
 mod parsers;
 pub mod schemas;
 use bson::{doc, Bson};
+use log::{info, trace};
 use parsers::*;
 
 use json::{self as other_json, object};
@@ -187,6 +188,7 @@ impl IParser for Parser {
     }
 
     async fn get_kegg(url: &str) -> kegg_schemas {
+        info!(target: "get_kegg", "Запросили kegg_schemas по uri");
         Parser::vec_bson_to_kegg_schemas(Parser::parse_kegg_to_string(url).await.unwrap()).await
     }
 }
