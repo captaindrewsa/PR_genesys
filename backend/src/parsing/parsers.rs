@@ -9,7 +9,7 @@ use std::{collections::HashMap, vec};
 use crate::parsing::schemas;
 
 pub fn entry_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля Entry");
+    info!("Инициировали парсинг поля Entry");
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Entry: String,
@@ -52,7 +52,7 @@ pub fn entry_row_parsing(html: String) -> Option<Bson> {
 }
 pub fn name_row_parsing(html: String) -> Option<Bson> {
     /* Парсим блок напротив Name в Compound */
-    trace!("Инициировали парсинг поля Name");
+    info!("Инициировали парсинг поля Name");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -85,7 +85,7 @@ pub fn name_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn formula_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля formula");
+    info!("Инициировали парсинг поля formula");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -116,7 +116,7 @@ pub fn formula_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn exact_mass_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля exact_mass");
+    info!("Инициировали парсинг поля exact_mass");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -148,7 +148,7 @@ pub fn exact_mass_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn mol_weight_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля mol_weight");
+    info!("Инициировали парсинг поля mol_weight");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -180,7 +180,7 @@ pub fn mol_weight_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn reaction_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля reaction");
+    info!("Инициировали парсинг поля reaction");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -215,7 +215,7 @@ pub fn reaction_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn enzyme_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля enzyme");
+    info!("Инициировали парсинг поля enzyme");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -251,7 +251,7 @@ pub fn enzyme_row_parsing(html: String) -> Option<Bson> {
 }
 pub fn pathway_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
-    trace!("Инициировали парсинг поля pathway");
+    info!("Инициировали парсинг поля pathway");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -297,7 +297,7 @@ pub fn pathway_row_parsing(html: String) -> Option<Bson> {
 }
 pub fn module_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
-    trace!("Инициировали парсинг поля module");
+    info!("Инициировали парсинг поля module");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -342,7 +342,7 @@ pub fn module_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn definition_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля definition");
+    info!("Инициировали парсинг поля definition");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -391,7 +391,7 @@ pub fn definition_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn equation_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля equation");
+    info!("Инициировали парсинг поля equation");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -433,7 +433,7 @@ pub fn equation_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn reaction_iubmb_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля reaction_iubmb");
+    info!("Инициировали парсинг поля reaction_iubmb");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -462,7 +462,7 @@ pub fn reaction_iubmb_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn reaction_kegg_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля reaction_kegg");
+    info!("Инициировали парсинг поля reaction_kegg");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -491,7 +491,7 @@ pub fn reaction_kegg_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn substrate_kegg_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля substrate");
+    info!("Инициировали парсинг поля substrate");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -520,7 +520,7 @@ pub fn substrate_kegg_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn product_kegg_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля product");
+    info!("Инициировали парсинг поля product");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -550,7 +550,7 @@ pub fn product_kegg_row_parsing(html: String) -> Option<Bson> {
 }
 pub fn genes_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
-    trace!("Инициировали парсинг поля genes");
+    info!("Инициировали парсинг поля genes");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -602,7 +602,7 @@ pub fn genes_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn symbol_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля symbol");
+    info!("Инициировали парсинг поля symbol");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -633,7 +633,7 @@ pub fn symbol_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn orgnism_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля orgnism");
+    info!("Инициировали парсинг поля orgnism");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -666,7 +666,7 @@ pub fn orgnism_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn aa_seq_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля aa_seq");
+    info!("Инициировали парсинг поля aa_seq");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
@@ -698,7 +698,7 @@ pub fn aa_seq_row_parsing(html: String) -> Option<Bson> {
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn nt_seq_row_parsing(html: String) -> Option<Bson> {
-    trace!("Инициировали парсинг поля nt_seq");
+    info!("Инициировали парсинг поля nt_seq");
 
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {

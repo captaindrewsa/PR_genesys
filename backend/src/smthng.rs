@@ -17,7 +17,7 @@ pub fn loger(){
             log_config.clone(),
             simplelog::TerminalMode::Mixed,
         simplelog::ColorChoice::Auto,
-        ),
+        ) ,
         WriteLogger::new(
             log::LevelFilter::Trace,
             log_config.clone(),

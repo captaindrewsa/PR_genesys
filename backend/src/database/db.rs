@@ -5,7 +5,7 @@ use mongodb::bson::doc;
 
 use crate::parsing::{
     self,
-    schemas::{self, databaseQuery, kegg_schemas, Compound, Enzyme, Reaction, CDS},
+    schemas::{self, databaseQuery, kegg_schemas},
 };
 
 #[derive(Clone)]

@@ -6,18 +6,18 @@ mod smthng;
 use std::{env, fs::File, time::UNIX_EPOCH};
 
 use parsing::{
-    schemas::{kegg_schemas, CDS},
+    schemas::{kegg_schemas},
     IParser, Parser,
 };
 
 use database::db::{self, workingWithKegg, Kegg_database};
 use log::{error, info, log_enabled, logger, trace, warn};
 
-use mongodb::{
-    self,
-    bson::{self, doc},
-};
-use simplelog::{CombinedLogger, Config, ConfigBuilder, TermLogger, WriteLogger};
+// use mongodb::{
+//     self,
+//     bson::{self, doc},
+// };
+
 use smthng::loger;
 use tokio;
 
@@ -32,8 +32,11 @@ async fn main() {
         // "https://www.genome.jp/entry/4.1.3.38",
         // "https://www.genome.jp/entry/7.5.2.3",
         // "https://www.genome.jp/entry/7.6.2.1",
-        "https://www.kegg.jp/entry/C07277",
-
+        
+        // "https://www.kegg.jp/entry/C07277",
+        // "https://www.kegg.jp/entry/C11907",
+        // "https://www.kegg.jp/entry/C00005",
+        // "https://www.kegg.jp/entry/C00080",
     ];
 
     let mut dabas = Kegg_database {
