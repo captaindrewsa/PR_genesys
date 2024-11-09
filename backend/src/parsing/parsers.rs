@@ -16,33 +16,31 @@ pub fn entry_row_parsing(html: String) -> Option<Bson> {
         Type: String,
     }
 
-    
-
     let fragment = Html::parse_fragment(&html);
     let span_sel = Selector::parse("table.w1 td.tal span").unwrap();
 
     let reg_entry = regex::Regex::new(r"[A-Z]{0,2}\s??[0-9\.]{4,16}").unwrap();
     let reg_type = regex::Regex::new(r"[A-Za-z]{3,8}").unwrap();
 
-    
     let mut word_list = {
-        if let Some(elem) = fragment.select(&span_sel).next(){
+        if let Some(elem) = fragment.select(&span_sel).next() {
             trace!("Scraper распознал поле Entry");
             elem.text()
-        .map(|word| word.trim().to_string())
-        .collect::<Vec<String>>()
-    } else {
-        warn!("Scraper не распознал поле Entry");
-        vec![]
-    }};
-    
+                .map(|word| word.trim().to_string())
+                .collect::<Vec<String>>()
+        } else {
+            warn!("Scraper не распознал поле Entry");
+            vec![]
+        }
+    };
 
     let word_list = {
         trace!("Распознавание Entry и Type в списке");
         vec![
-        reg_entry.find(&word_list[0]).unwrap().as_str(),
-        reg_type.find(&word_list[0]).unwrap().as_str(),
-    ]};
+            reg_entry.find(&word_list[0]).unwrap().as_str(),
+            reg_type.find(&word_list[0]).unwrap().as_str(),
+        ]
+    };
 
     let tmp_otp = otp_struct {
         Entry: word_list[0].clone().to_string(),
@@ -64,31 +62,31 @@ pub fn name_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-
     let name_list = {
-        if let Some(elem) = fragment.select(&div_cell_sel).next(){
-            trace!("Scraper распознал поле ");
-            elem
-            .text()
-            .map(|word| word.to_string())
-            .collect::<Vec<String>>()
-            .join("")
-            .trim()
-            .split(";")
-            .map(|word| word.trim().to_string())
-            .collect::<Vec<String>>()
-
-
+        if let Some(elem) = fragment.select(&div_cell_sel).next() {
+            trace!("Scraper распознал поле Name");
+            elem.text()
+                .map(|word| word.to_string())
+                .collect::<Vec<String>>()
+                .join("")
+                .trim()
+                .split(";")
+                .map(|word| word.trim().to_string())
+                .collect::<Vec<String>>()
         } else {
-            warn!("Scraper не распознал поле Entry");
+            warn!("Scraper не распознал поле Name");
             vec![]
-        }};
+        }
+    };
 
     let tmp_otp = otp_struct { Name: name_list };
 
+    trace!("Поле Name обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn formula_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля formula");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Formula: String,
@@ -97,22 +95,29 @@ pub fn formula_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-    let formula = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<Vec<String>>()
-        .join("")
-        .trim()
-        .to_string();
+    let formula = {
+        if let Some(elem) = fragment.select(&div_cell_sel).next() {
+            trace!("Scraper распознал поле Formula ");
+            elem.text()
+                .map(|word| word.to_string())
+                .collect::<Vec<String>>()
+                .join("")
+                .trim()
+                .to_string()
+        } else {
+            warn!("Scraper не распознал поле Formula");
+            String::new()
+        }
+    };
 
     let tmp_otp = otp_struct { Formula: formula };
 
+    trace!("Поле formula обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn exact_mass_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля exact_mass");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Exact_mass: f32,
@@ -121,23 +126,30 @@ pub fn exact_mass_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-    let mass: f32 = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<Vec<String>>()
-        .join("")
-        .trim()
-        .parse()
-        .unwrap_or(0.000);
+    let mass = {
+        if let Some(elem) = fragment.select(&div_cell_sel).next() {
+            trace!("Scraper распознал поле exact_mass");
+            elem.text()
+                .map(|word| word.to_string())
+                .collect::<Vec<String>>()
+                .join("")
+                .trim()
+                .parse()
+                .unwrap_or(0.000)
+        } else {
+            warn!("Scraper не распознал поле exact_mass");
+            0.000_f32
+        }
+    };
 
     let tmp_otp = otp_struct { Exact_mass: mass };
 
+    trace!("Поле exact_mass обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn mol_weight_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля mol_weight");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Mol_weight: f32,
@@ -146,23 +158,30 @@ pub fn mol_weight_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-    let weight: f32 = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<Vec<String>>()
-        .join("")
-        .trim()
-        .parse()
-        .unwrap_or(0.000);
+    let weight: f32 = {
+        if let Some(elem) = fragment.select(&div_cell_sel).next() {
+            trace!("Scraper распознал поле mol_weight");
+            elem.text()
+                .map(|word| word.to_string())
+                .collect::<Vec<String>>()
+                .join("")
+                .trim()
+                .parse()
+                .unwrap_or(0.000)
+        } else {
+            warn!("Scraper не распознал поле mol_weight");
+            0.000_f32
+        }
+    };
 
     let tmp_otp = otp_struct { Mol_weight: weight };
 
+    trace!("Поле mol_weight обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn reaction_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля reaction");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Reaction: Vec<String>,
@@ -173,13 +192,15 @@ pub fn reaction_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-    let reactions_string = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<String>();
+    let reactions_string = {
+        if let Some(elem) = fragment.select(&div_cell_sel).next() {
+            trace!("Scraper распознал поле reaction");
+            elem.text().map(|word| word.to_string()).collect::<String>()
+        } else {
+            warn!("Scraper не распознал поле reaction");
+            String::new()
+        }
+    };
 
     let reaction_list = re
         .find_iter(&reactions_string)
@@ -190,9 +211,12 @@ pub fn reaction_row_parsing(html: String) -> Option<Bson> {
         Reaction: reaction_list,
     };
 
+    trace!("Поле reaction обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn enzyme_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля enzyme");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Enzyme: Vec<String>,
@@ -203,13 +227,15 @@ pub fn enzyme_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-    let enzymes_string = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<String>();
+    let enzymes_string = {
+        if let Some(elem) = fragment.select(&div_cell_sel).next() {
+            trace!("Scraper распознал поле enzyme");
+            elem.text().map(|word| word.to_string()).collect::<String>()
+        } else {
+            warn!("Scraper не распознал поле enzyme");
+            String::new()
+        }
+    };
 
     let enzymes_list = re
         .find_iter(&enzymes_string)
@@ -220,10 +246,13 @@ pub fn enzyme_row_parsing(html: String) -> Option<Bson> {
         Enzyme: enzymes_list,
     };
 
+    trace!("Поле enzyme обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn pathway_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
+    trace!("Инициировали парсинг поля pathway");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Pathway: Vec<Vec<String>>,
@@ -240,17 +269,21 @@ pub fn pathway_row_parsing(html: String) -> Option<Bson> {
 
         let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер
 
-        let tmp_vec = fragment
-            .select(&body_sel)
-            .next()
-            .unwrap()
-            .text()
-            .map(|word| word.to_string())
-            .collect::<Vec<String>>()
-            .join("")
-            .split("\u{a0}\u{a0}")
-            .map(|word| word.to_string())
-            .collect::<Vec<String>>();
+        let tmp_vec = {
+            if let Some(elem) = fragment.select(&body_sel).next() {
+                trace!("Scraper распознал строчку в таблице pathway");
+                elem.text()
+                    .map(|word| word.to_string())
+                    .collect::<Vec<String>>()
+                    .join("")
+                    .split("\u{a0}\u{a0}")
+                    .map(|word| word.to_string())
+                    .collect::<Vec<String>>()
+            } else {
+                warn!("Scraper не распознал строчку в таблице pathway");
+                vec![]
+            }
+        };
 
         final_vec_of_map.push(tmp_vec);
     }
@@ -259,10 +292,13 @@ pub fn pathway_row_parsing(html: String) -> Option<Bson> {
         Pathway: final_vec_of_map,
     };
 
+    trace!("Поле pathway обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn module_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
+    trace!("Инициировали парсинг поля module");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Module: Vec<Vec<String>>,
@@ -279,17 +315,21 @@ pub fn module_row_parsing(html: String) -> Option<Bson> {
 
         let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер
 
-        let tmp_vec = fragment
-            .select(&body_sel)
-            .next()
-            .unwrap()
-            .text()
-            .map(|word| word.to_string())
-            .collect::<Vec<String>>()
-            .join("")
-            .split("\u{a0}\u{a0}")
-            .map(|word| word.to_string())
-            .collect::<Vec<String>>();
+        let tmp_vec = {
+            if let Some(elem) = fragment.select(&body_sel).next() {
+                trace!("Scraper распознал строчку в таблице module");
+                elem.text()
+                    .map(|word| word.to_string())
+                    .collect::<Vec<String>>()
+                    .join("")
+                    .split("\u{a0}\u{a0}")
+                    .map(|word| word.to_string())
+                    .collect::<Vec<String>>()
+            } else {
+                warn!("Scraper не распознал строчку в таблице module");
+                vec![]
+            }
+        };
 
         final_vec_of_module.push(tmp_vec);
     }
@@ -298,9 +338,12 @@ pub fn module_row_parsing(html: String) -> Option<Bson> {
         Module: final_vec_of_module,
     };
 
+    trace!("Поле module обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn definition_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля definition");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Definition: schemas::definition,
@@ -309,13 +352,17 @@ pub fn definition_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_cell_sel = Selector::parse("div.cel").unwrap();
 
-    let definition_string = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.trim().to_string())
-        .collect::<String>();
+    let definition_string = {
+        if let Some(elem) = fragment.select(&div_cell_sel).next() {
+            trace!("Scraper распознал поле definition");
+            elem.text()
+                .map(|word| word.trim().to_string())
+                .collect::<String>()
+        } else {
+            warn!("Scraper не распознал поле definition");
+            String::new()
+        }
+    };
 
     let reagents = definition_string
         .split("<=>")
@@ -340,9 +387,12 @@ pub fn definition_row_parsing(html: String) -> Option<Bson> {
         Definition: tmp_otp,
     };
 
+    trace!("Поле definition обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn equation_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля equation");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Equation: schemas::equation,
@@ -353,13 +403,15 @@ pub fn equation_row_parsing(html: String) -> Option<Bson> {
 
     let reg = regex::Regex::new(r"C[0-9]{5}").unwrap();
 
-    let equation_string = fragment
-        .select(&div_cell_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.to_string())
-        .collect::<String>();
+    let equation_string = {
+        if let Some(elem) = fragment.select(&div_cell_sel).next() {
+            trace!("Scraper распознал поле equation");
+            elem.text().map(|word| word.to_string()).collect::<String>()
+        } else {
+            warn!("Scraper не распознал поле equation");
+            String::new()
+        }
+    };
 
     let reagents = equation_string
         .split("=")
@@ -377,9 +429,12 @@ pub fn equation_row_parsing(html: String) -> Option<Bson> {
 
     let tmp_otp = otp_struct { Equation: tmp_otp };
 
+    trace!("Поле equation обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn reaction_iubmb_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля reaction_iubmb");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Reaction_IUBMB: Vec<String>,
@@ -390,6 +445,7 @@ pub fn reaction_iubmb_row_parsing(html: String) -> Option<Bson> {
 
     let mut list_reactions: Vec<String> = Vec::new();
 
+    trace!("Итерация по найденым reacction_iubmb");
     for elem in fragment.select(&a_selec) {
         list_reactions.push(
             elem.text()
@@ -402,9 +458,12 @@ pub fn reaction_iubmb_row_parsing(html: String) -> Option<Bson> {
         Reaction_IUBMB: list_reactions,
     };
 
+    trace!("Поле reaction_iubmb обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn reaction_kegg_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля reaction_kegg");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Reaction_KEGG: Vec<String>,
@@ -415,6 +474,7 @@ pub fn reaction_kegg_row_parsing(html: String) -> Option<Bson> {
 
     let mut list_reactions: Vec<String> = Vec::new();
 
+    trace!("Итерация по найденым элементам reaction_kegg");
     for elem in fragment.select(&a_selec) {
         list_reactions.push(
             elem.text()
@@ -427,9 +487,12 @@ pub fn reaction_kegg_row_parsing(html: String) -> Option<Bson> {
         Reaction_KEGG: list_reactions,
     };
 
+    trace!("Поле reaction_kegg обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn substrate_kegg_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля substrate");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Substrate: Vec<String>,
@@ -440,6 +503,7 @@ pub fn substrate_kegg_row_parsing(html: String) -> Option<Bson> {
 
     let mut list_substrate: Vec<String> = Vec::new();
 
+    trace!("Итерация по найденым элементам substrate");
     for elem in fragment.select(&a_selec) {
         list_substrate.push(
             elem.text()
@@ -452,9 +516,12 @@ pub fn substrate_kegg_row_parsing(html: String) -> Option<Bson> {
         Substrate: list_substrate,
     };
 
+    trace!("Поле substrate обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn product_kegg_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля product");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Product: Vec<String>,
@@ -465,6 +532,7 @@ pub fn product_kegg_row_parsing(html: String) -> Option<Bson> {
 
     let mut list_product: Vec<String> = Vec::new();
 
+    trace!("Итерация по найденым элементам product");
     for elem in fragment.select(&a_selec) {
         list_product.push(
             elem.text()
@@ -477,10 +545,13 @@ pub fn product_kegg_row_parsing(html: String) -> Option<Bson> {
         Product: list_product,
     };
 
+    trace!("Поле product обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn genes_row_parsing(html: String) -> Option<Bson> {
     /* Бегаем по table.w1, берем там span и td в один вектор, которые потом стакаем */
+    trace!("Инициировали парсинг поля genes");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Genes: HashMap<String, Vec<String>>,
@@ -492,22 +563,27 @@ pub fn genes_row_parsing(html: String) -> Option<Bson> {
 
     let mut final_map_of_module: HashMap<String, Vec<String>> = HashMap::new();
 
+    trace!("Итерация по найденым строчкам таблицы Genes");
     for table in fragment.select(&table_sel) {
         //Здесь бежим по строчкам-табличкам
 
         let fragment = Html::parse_document(&table.inner_html().to_string()); //Обернули таблички в новый парсер
 
-        let pair_vec = fragment
-            .select(&body_sel)
-            .next()
-            .unwrap()
-            .text()
-            .map(|word| word.trim().to_string())
-            .collect::<Vec<String>>()
-            .join("")
-            .split(":")
-            .map(|word| word.to_string())
-            .collect::<Vec<String>>();
+        let pair_vec = {
+            if let Some(elem) = fragment.select(&body_sel).next() {
+                trace!("Scraper распознал Genes в строчке таблицы");
+                elem.text()
+                    .map(|word| word.trim().to_string())
+                    .collect::<Vec<String>>()
+                    .join("")
+                    .split(":")
+                    .map(|word| word.to_string())
+                    .collect::<Vec<String>>()
+            } else {
+                warn!("Scraper не распознал Genes в строчке таблицы");
+                vec![]
+            }
+        };
 
         final_map_of_module.insert(
             pair_vec[0].clone(),
@@ -522,9 +598,12 @@ pub fn genes_row_parsing(html: String) -> Option<Bson> {
         Genes: final_map_of_module,
     };
 
+    trace!("Поле genes обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn symbol_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля symbol");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Symbol: Vec<String>,
@@ -533,22 +612,29 @@ pub fn symbol_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_sel = Selector::parse(r"div.cel").unwrap();
 
-    let tmp_vec = fragment
-        .select(&div_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|var| var.trim().to_string())
-        .collect::<String>()
-        .split(",")
-        .map(|var| var.trim().to_string())
-        .collect::<Vec<String>>();
+    let tmp_vec = {
+        if let Some(elem) = fragment.select(&div_sel).next() {
+            trace!("Scraper распознал поле symbol");
+            elem.text()
+                .map(|var| var.trim().to_string())
+                .collect::<String>()
+                .split(",")
+                .map(|var| var.trim().to_string())
+                .collect::<Vec<String>>()
+        } else {
+            warn!("Scraper не распознал поле symbol");
+            vec![]
+        }
+    };
 
     let tmp_otp = otp_struct { Symbol: tmp_vec };
 
+    trace!("Поле symbol обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn orgnism_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля orgnism");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Organism: Vec<String>,
@@ -557,24 +643,31 @@ pub fn orgnism_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let div_sel = Selector::parse("div.cel").unwrap();
 
-    let tmp_vec = fragment
-        .select(&div_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|word| word.trim().to_string())
-        .collect::<Vec<String>>()
-        .join("  ")
-        .trim()
-        .split("  ")
-        .map(|var| var.to_string())
-        .collect();
+    let tmp_vec = {
+        if let Some(elem) = fragment.select(&div_sel).next() {
+            trace!("Scraper распознал поле orgnism");
+            elem.text()
+                .map(|word| word.trim().to_string())
+                .collect::<Vec<String>>()
+                .join("  ")
+                .trim()
+                .split("  ")
+                .map(|var| var.to_string())
+                .collect()
+        } else {
+            warn!("Scraper не распознал поле orgnism");
+            vec![]
+        }
+    };
 
     let tmp_otp = otp_struct { Organism: tmp_vec };
 
+    trace!("Поле orgnism обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn aa_seq_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля aa_seq");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         AA_seq: String,
@@ -585,21 +678,28 @@ pub fn aa_seq_row_parsing(html: String) -> Option<Bson> {
 
     let reg = regex::Regex::new(r"[A-Z]{3,}").unwrap();
 
-    let tmp = fragment
-        .select(&td_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|var| var.trim().to_string())
-        .collect::<String>();
+    let tmp = {
+        if let Some(elem) = fragment.select(&td_sel).next() {
+            trace!("Scraper распознал поле aa_seq");
+            elem.text()
+                .map(|var| var.trim().to_string())
+                .collect::<String>()
+        } else {
+            warn!("Scraper не распознал поле aa_seq");
+            String::new()
+        }
+    };
 
     let tmp_otp = otp_struct {
         AA_seq: reg.find(&tmp).unwrap().as_str().to_string(),
     };
 
+    trace!("Поле aa_seq обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
 pub fn nt_seq_row_parsing(html: String) -> Option<Bson> {
+    trace!("Инициировали парсинг поля nt_seq");
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         NT_seq: String,
@@ -610,22 +710,28 @@ pub fn nt_seq_row_parsing(html: String) -> Option<Bson> {
 
     let reg = regex::Regex::new(r"(a|t|g|c|u){6,}").unwrap();
 
-    let word_list = fragment
-        .select(&html_sel)
-        .next()
-        .unwrap()
-        .text()
-        .map(|var| var.trim().to_string())
-        .collect::<Vec<String>>()
-        .join(" ");
+    let word_list = {
+        if let Some(elem) = fragment.select(&html_sel).next() {
+            trace!("Scraper распознал поле nt_seq");
+            elem.text()
+                .map(|var| var.trim().to_string())
+                .collect::<Vec<String>>()
+                .join(" ")
+        } else {
+            warn!("Scraper не распознал поле nt_seq");
+            String::new()
+        }
+    };
 
     let mut tmp = String::new();
 
+    trace!("Итерация по результатам поиска внутри nt_seq");
     for (nt_seq, [_]) in reg.captures_iter(&word_list).map(|word| word.extract()) {
         tmp.push_str(nt_seq);
     }
 
     let tmp_otp = otp_struct { NT_seq: tmp };
 
+    trace!("Поле nt_seq обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }
