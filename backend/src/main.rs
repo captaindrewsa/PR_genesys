@@ -1,8 +1,9 @@
 #![allow(warnings)]
 mod database;
 mod parsing;
+mod smthng;
 
-use std::{env, fs::File};
+use std::{env, fs::File, time::UNIX_EPOCH};
 
 use parsing::{
     schemas::{kegg_schemas, CDS},
@@ -10,37 +11,29 @@ use parsing::{
 };
 
 use database::db::{self, workingWithKegg, Kegg_database};
-use log::{error, info, log_enabled, trace, warn};
+use log::{error, info, log_enabled, logger, trace, warn};
 
 use mongodb::{
     self,
     bson::{self, doc},
 };
 use simplelog::{CombinedLogger, Config, ConfigBuilder, TermLogger, WriteLogger};
+use smthng::loger;
 use tokio;
 
 #[tokio::main]
 async fn main() {
-
-    let log_config = ConfigBuilder::new()
-    .set_level_color(log::Level::Info, Some(simplelog::Color::Green))
-    .add_filter_allow_str("backend").build();
-    
-    CombinedLogger::init(vec![
-        TermLogger::new(log::LevelFilter::Info, log_config.clone(), simplelog::TerminalMode::Mixed, simplelog::ColorChoice::Auto),
-        WriteLogger::new(log::LevelFilter::Trace, log_config.clone(), File::create("my_log_test.log").unwrap())
-    ]).unwrap();
-
-    info!("Start programm");
+    loger();
 
     let url_kegg = vec![
-        "https://www.genome.jp/entry/1.1.1.27",
-        // "https://www.genome.jp/entry/1.14.14.51",
+        // "https://www.genome.jp/entry/7.2.2.13",
         // "https://www.genome.jp/entry/1.1.3.8",
         // "https://www.genome.jp/entry/4.1.3.3",
         // "https://www.genome.jp/entry/4.1.3.38",
         // "https://www.genome.jp/entry/7.5.2.3",
         // "https://www.genome.jp/entry/7.6.2.1",
+        "https://www.kegg.jp/entry/C07277",
+
     ];
 
     let mut dabas = Kegg_database {
@@ -54,12 +47,9 @@ async fn main() {
         let tmp_doc = Parser::get_kegg(elem).await;
         match dabas.add_kegg(tmp_doc).await {
             Ok(_) => {
-                trace!("Тест трейса");
-                info!(target: "sdasd", "Добавили объект в бд");
                 continue;
             }
             Err(_) => {
-                warn!("Наошибили");
                 continue;
             }
         };

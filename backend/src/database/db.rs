@@ -1,3 +1,4 @@
+use log;
 use std::borrow::Borrow;
 
 use mongodb::bson::doc;
