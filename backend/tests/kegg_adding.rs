@@ -1,28 +1,10 @@
-#![allow(warnings)]
-mod database;
-mod parsing;
-mod smthng;
-
-use std::{env, fs::File, time::UNIX_EPOCH};
-
-use parsing::{
-    schemas::{kegg_schemas},
-    IParser, Parser,
-};
-
-use database::db::{self, workingWithKegg, Kegg_database};
-use log::{error, info, log_enabled, logger, trace, warn};
-
-// use mongodb::{
-//     self,
-//     bson::{self, doc},
-// };
-
-use smthng::loger;
+use backend::{database::db::{workingWithKegg, Kegg_database}, parsing::{IParser, Parser}, smthng::loger};
 use tokio;
 
-#[tokio::main]
-async fn main() {
+
+#[tokio::test]
+pub async fn all_things()
+{
     loger();
 
     let url_kegg = vec![
@@ -31,9 +13,9 @@ async fn main() {
         // "https://www.genome.jp/entry/4.1.3.3",
         // "https://www.genome.jp/entry/4.1.3.38",
         // "https://www.genome.jp/entry/7.5.2.3",
-        // "https://www.genome.jp/entry/7.6.2.1",
+        "https://www.genome.jp/entry/7.6.2.1",
         
-        // "https://www.kegg.jp/entry/C07277",
+        "https://www.kegg.jp/entry/C07277",
         // "https://www.kegg.jp/entry/C11907",
         // "https://www.kegg.jp/entry/C00005",
         // "https://www.kegg.jp/entry/C00080",
@@ -50,11 +32,14 @@ async fn main() {
         let tmp_doc = Parser::get_kegg(elem).await;
         match dabas.add_kegg(tmp_doc).await {
             Ok(_) => {
+                assert!(true);
                 continue;
             }
             Err(_) => {
+                assert!(false);
                 continue;
             }
         };
     }
+
 }

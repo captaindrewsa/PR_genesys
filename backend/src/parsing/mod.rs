@@ -7,7 +7,7 @@ use parsers::*;
 use json::{self as other_json, object};
 use regex;
 use reqwest;
-use schemas::{kegg_schemas, Enzyme, CDS};
+use schemas::{kegg_schemas};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json::{self, json};
