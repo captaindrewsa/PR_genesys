@@ -4,7 +4,7 @@ use std::str::FromStr;
 use bson::{doc, oid::ObjectId, Bson};
 use serde::{Deserialize, Serialize};
 
-use crate::utils::databaseQuery;
+use crate::utils::{databaseQuery, Compartment, Project_default};
 
 use super::db::{workingWithProjects, Project_database};
 
@@ -13,23 +13,12 @@ impl workingWithProjects for Project_database {
         &mut self,
         prj_name: &str,
     ) -> Result<bson::oid::ObjectId, databaseQuery> {
-        #[derive(Serialize, Deserialize, Default)]
-        struct Compartment {
-            Objects: Vec<bson::Bson>,
-        }
-
-        #[derive(Serialize, Deserialize, Default)]
-        struct Project_default {
-            Name: String,
-            Compartments: Vec<Compartment>,
-        }
-
         let mut tmp = Project_default::default();
         tmp.Name = prj_name.to_owned();
         let obj_id: ObjectId = {
             if let Some(obj) = self
                 .database
-                .collection::<Bson>("Projects")
+                .collection::<Bson>(&self.collection)
                 .find_one(doc! {"Name": prj_name})
                 .await
                 .unwrap()
@@ -37,7 +26,7 @@ impl workingWithProjects for Project_database {
                 println!("Такой документ был найден, но вернут до стандартного");
 
                 self.database
-                    .collection("Projects")
+                    .collection(&self.collection)
                     .find_one_and_replace(doc! {"Name": prj_name}, bson::to_bson(&tmp).unwrap())
                     .upsert(true)
                     .await;
@@ -55,7 +44,7 @@ impl workingWithProjects for Project_database {
             } else {
                 let tmp = self
                     .database
-                    .collection("Projects")
+                    .collection(&self.collection)
                     .insert_one(bson::to_bson(&tmp).unwrap())
                     .await
                     .unwrap()
@@ -70,8 +59,33 @@ impl workingWithProjects for Project_database {
         Ok(obj_id)
     }
 
-    async fn create_comp(prj: bson::oid::ObjectId, comp_name: &str) -> Option<bson::oid::ObjectId> {
-        todo!()
+    async fn create_comp(&mut self, prj: bson::oid::ObjectId, comp_name: &str) -> Option<bson::oid::ObjectId> {
+        
+        let mut tmp = Compartment::default();
+        tmp.Name = comp_name.to_string();
+
+
+
+        if let Some(obj) = self
+        .database
+        .collection::<Bson>("Projects")
+        .find_one(doc! {"_id": prj})
+        .await
+        .unwrap()
+        {   
+            self.database.collection::<Bson>(&self.collection).update_one(
+                doc! {"_id": prj, "Compartments.Name":{"$ne":comp_name}
+                            }, 
+                doc! {"$push": {
+                    "Compartments": bson::to_bson(&tmp).unwrap()
+                }}).upsert(true).await;
+
+                Some(prj)
+
+
+        } else {
+            None
+        }
     }
 
     async fn create_daughter_comp(

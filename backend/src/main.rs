@@ -17,12 +17,12 @@ async fn main() {
             .await
             .unwrap()
             .database("Projects"),
+            collection: "Projects".to_string()
     };
 
-    let prj = database.create_project("Test_prj12312312").await;
-    println!("{:?}", prj.unwrap());
+    let prj = database.create_project("Test_prj").await.unwrap();
 
-    // database.create_comp(prj, "Compartment").unwrap();
+    database.create_comp(prj, "Compartment3123").await;
     // database
     //     .create_daughter_comp(prj, "father_comp", "daug_comp")
     //     .unwrap();

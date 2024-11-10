@@ -13,6 +13,7 @@ pub struct Kegg_database {
 #[derive(Clone)]
 pub struct Project_database {
     pub database: mongodb::Database,
+    pub collection: String
 }
 
 pub trait workingWithKegg {
@@ -21,7 +22,7 @@ pub trait workingWithKegg {
 
 pub trait workingWithProjects {
     async fn create_project(&mut self, prj_name: &str) -> Result<ObjectId, databaseQuery>;
-    async fn create_comp(prj: ObjectId, comp_name: &str) -> Option<ObjectId>;
+    async fn create_comp(&mut self, prj: ObjectId, comp_name: &str) -> Option<ObjectId>;
     async fn create_daughter_comp(
         prj: ObjectId,
         father_comp: &str,
