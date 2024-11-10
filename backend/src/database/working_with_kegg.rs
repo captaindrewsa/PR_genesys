@@ -3,16 +3,16 @@ use log::{info, trace};
 
 use crate::utils::{databaseQuery, kegg_schemas};
 
-use super::db::{workingWithKegg, Kegg_database};
+use super::db::{workingWithKegg, TheOneDatabase};
 
-impl workingWithKegg for Kegg_database {
+impl workingWithKegg for TheOneDatabase {
     async fn add_kegg(&mut self, kegg_sh: kegg_schemas) -> Result<databaseQuery, databaseQuery> {
         match kegg_sh {
             kegg_schemas::CDS(var) => {
                 let var_des = var.as_document().unwrap();
                 let var_entry = var_des.get_str("Entry").unwrap();
 
-                self.database
+                self.database_kegg
                     .collection("CDS")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
@@ -26,7 +26,7 @@ impl workingWithKegg for Kegg_database {
                 let var_des = var.as_document().unwrap();
                 let var_entry = var_des.get_str("Entry").unwrap();
 
-                self.database
+                self.database_kegg
                     .collection("Enzyme")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
@@ -40,7 +40,7 @@ impl workingWithKegg for Kegg_database {
                 let var_des = var.as_document().unwrap();
                 let var_entry = var_des.get_str("Entry").unwrap();
 
-                self.database
+                self.database_kegg
                     .collection("Reaction")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},
@@ -54,7 +54,7 @@ impl workingWithKegg for Kegg_database {
                 let var_des = var.as_document().unwrap();
                 let var_entry = var_des.get_str("Entry").unwrap();
 
-                self.database
+                self.database_kegg
                     .collection("Compound")
                     .find_one_and_replace(
                         doc! {"Entry": var_entry},

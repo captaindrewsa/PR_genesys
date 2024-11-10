@@ -6,14 +6,10 @@ use bson::oid::ObjectId;
 use crate::utils::{databaseQuery, kegg_schemas};
 
 #[derive(Clone)]
-pub struct Kegg_database {
-    pub database: mongodb::Database,
-}
-
-#[derive(Clone)]
-pub struct Project_database {
-    pub database: mongodb::Database,
-    pub collection: String
+pub struct TheOneDatabase {
+    pub database_kegg: mongodb::Database,
+    pub database_prj: mongodb::Database,
+    pub collection_prj: String,
 }
 
 pub trait workingWithKegg {
@@ -33,6 +29,10 @@ pub trait workingWithProjects {
         father_comp: &str,
         daughter_comp: &str,
     ) -> Option<ObjectId>;
-    async fn update_kegg_comp(prj: ObjectId, comp_name: &str, entry_name: &str)
-        -> Option<ObjectId>;
+    async fn update_kegg_comp(
+        &mut self,
+        prj: ObjectId,
+        comp_name: &str,
+        entry_name: &str,
+    ) -> Option<ObjectId>;
 }
