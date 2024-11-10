@@ -1,7 +1,8 @@
 use bson::doc;
 use log::{info, trace};
 
-use crate::parsing::schemas::{self, databaseQuery, kegg_schemas};
+
+use crate::{databaseQuery, kegg_schemas};
 
 use super::db::{workingWithKegg, Kegg_database};
 
@@ -9,7 +10,7 @@ impl workingWithKegg for Kegg_database {
     async fn add_kegg(
         &mut self,
         kegg_sh: kegg_schemas,
-    ) -> Result<schemas::databaseQuery, schemas::databaseQuery> {
+    ) -> Result<databaseQuery, databaseQuery> {
         match kegg_sh {
             kegg_schemas::CDS(var) => {
                 let var_des = var.as_document().unwrap();
@@ -71,6 +72,6 @@ impl workingWithKegg for Kegg_database {
                 return Err(databaseQuery::Error("Incorrect adding kegg".to_string()))
             }
         }
-        return Ok(schemas::databaseQuery::Ok);
+        return Ok(databaseQuery::Ok);
     }
 }

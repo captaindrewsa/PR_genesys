@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{collections::HashMap, vec};
 
-use crate::parsing::schemas;
 
 pub fn entry_row_parsing(html: String) -> Option<Bson> {
     info!("Инициировали парсинг поля Entry");
@@ -343,10 +342,17 @@ pub fn module_row_parsing(html: String) -> Option<Bson> {
 }
 pub fn definition_row_parsing(html: String) -> Option<Bson> {
     info!("Инициировали парсинг поля definition");
+    
+    #[derive(Serialize, Deserialize, Debug)]
 
+    pub struct definition {
+        pub Substrate: Vec<String>,
+        pub Product: Vec<String>,
+    }
+    
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
-        Definition: schemas::definition,
+        Definition: definition,
     }
 
     let fragment = Html::parse_fragment(&html);
@@ -378,7 +384,7 @@ pub fn definition_row_parsing(html: String) -> Option<Bson> {
         .map(|var| var.trim().to_string())
         .collect::<Vec<String>>();
 
-    let tmp_otp = schemas::definition {
+    let tmp_otp = definition {
         Substrate: substrate,
         Product: products,
     };
@@ -394,8 +400,16 @@ pub fn equation_row_parsing(html: String) -> Option<Bson> {
     info!("Инициировали парсинг поля equation");
 
     #[derive(Serialize, Deserialize, Debug)]
+pub struct equation {
+    pub Substrate: Vec<String>,
+    pub Product: Vec<String>,
+}
+
+    
+    
+    #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
-        Equation: schemas::equation,
+        Equation: equation,
     }
 
     let fragment = Html::parse_fragment(&html);
@@ -422,7 +436,7 @@ pub fn equation_row_parsing(html: String) -> Option<Bson> {
         })
         .collect::<Vec<Vec<String>>>();
 
-    let tmp_otp = schemas::equation {
+    let tmp_otp = equation {
         Substrate: reagents[0].clone(),
         Product: reagents[1].clone(),
     };

@@ -1,10 +1,12 @@
-use backend::{database::db::{workingWithKegg, Kegg_database}, parsing::{IParser, Parser}, smthng::loger};
+use backend::{
+    database::db::{workingWithKegg, Kegg_database},
+    parsing::{IParser, Parser},
+    smthng::loger,
+};
 use tokio;
 
-
 #[tokio::test]
-pub async fn all_things()
-{
+pub async fn all_things() {
     loger();
 
     let url_kegg = vec![
@@ -14,7 +16,6 @@ pub async fn all_things()
         // "https://www.genome.jp/entry/4.1.3.38",
         // "https://www.genome.jp/entry/7.5.2.3",
         "https://www.genome.jp/entry/7.6.2.1",
-        
         "https://www.kegg.jp/entry/C07277",
         // "https://www.kegg.jp/entry/C11907",
         // "https://www.kegg.jp/entry/C00005",
@@ -41,5 +42,4 @@ pub async fn all_things()
             }
         };
     }
-
 }

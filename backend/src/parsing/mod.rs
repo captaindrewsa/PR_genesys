@@ -1,5 +1,4 @@
 mod parsers;
-pub mod schemas;
 use bson::{doc, Bson};
 use log::{info, trace};
 use parsers::*;
@@ -7,12 +6,13 @@ use parsers::*;
 use json::{self as other_json, object};
 use regex;
 use reqwest;
-use schemas::{kegg_schemas};
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json::{self, json};
 use std::{borrow::Borrow, collections::HashMap, str::FromStr};
 use tokio;
+
+use crate::kegg_schemas;
 
 pub struct Parser {}
 

@@ -3,58 +3,27 @@ mod database;
 mod parsing;
 mod smthng;
 
-use std::{env, fs::File, time::UNIX_EPOCH};
+use backend::database::db::{workingWithProjects, Kegg_database, Project_database};
 
-use parsing::{
-    schemas::{kegg_schemas},
-    IParser, Parser,
-};
-
-use database::db::{self, workingWithKegg, Kegg_database};
-use log::{error, info, log_enabled, logger, trace, warn};
-
-// use mongodb::{
-//     self,
-//     bson::{self, doc},
-// };
-
+use bson::oid::ObjectId;
 use smthng::loger;
 use tokio;
 
 #[tokio::main]
 async fn main() {
-    loger();
+    let database = Project_database { database: 
+        mongodb::Client::with_uri_str("127.0.0.1:27017").await.unwrap().database("Project") };
 
-    let url_kegg = vec![
-        // "https://www.genome.jp/entry/7.2.2.13",
-        // "https://www.genome.jp/entry/1.1.3.8",
-        // "https://www.genome.jp/entry/4.1.3.3",
-        // "https://www.genome.jp/entry/4.1.3.38",
-        // "https://www.genome.jp/entry/7.5.2.3",
-        // "https://www.genome.jp/entry/7.6.2.1",
-        
-        // "https://www.kegg.jp/entry/C07277",
-        // "https://www.kegg.jp/entry/C11907",
-        // "https://www.kegg.jp/entry/C00005",
-        // "https://www.kegg.jp/entry/C00080",
-    ];
+    let prj = database.create_project("Test_prj").await;
 
-    let mut dabas = Kegg_database {
-        database: mongodb::Client::with_uri_str("mongodb://127.0.0.1:27017")
-            .await
-            .unwrap()
-            .database("kegobb"),
-    };
-
-    for elem in url_kegg {
-        let tmp_doc = Parser::get_kegg(elem).await;
-        match dabas.add_kegg(tmp_doc).await {
-            Ok(_) => {
-                continue;
-            }
-            Err(_) => {
-                continue;
-            }
-        };
-    }
+    // database.create_comp(prj, "Compartment").unwrap();
+    // database
+    //     .create_daughter_comp(prj, "father_comp", "daug_comp")
+    //     .unwrap();
+    // database
+    //     .create_father_comp(prj, "father_comp", "daughter_comp")
+    //     .unwrap();
+    // database
+    //     .update_kegg_comp(prj, "Compartment", "Entry")
+    //     .unwrap();
 }
