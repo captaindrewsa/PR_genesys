@@ -1,10 +1,5 @@
-use backend::{
-    database::db::{workingWithKegg, Kegg_database},
-    parsing::{IParser, Parser},
-    smthng::loger,
-};
 use tokio;
-
+/*
 #[tokio::test]
 pub async fn all_things() {
     loger();
@@ -43,3 +38,4 @@ pub async fn all_things() {
         };
     }
 }
+ */

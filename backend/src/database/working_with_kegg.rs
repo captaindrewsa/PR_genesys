@@ -1,16 +1,12 @@
 use bson::doc;
 use log::{info, trace};
 
-
-use crate::{databaseQuery, kegg_schemas};
+use crate::utils::{databaseQuery, kegg_schemas};
 
 use super::db::{workingWithKegg, Kegg_database};
 
 impl workingWithKegg for Kegg_database {
-    async fn add_kegg(
-        &mut self,
-        kegg_sh: kegg_schemas,
-    ) -> Result<databaseQuery, databaseQuery> {
+    async fn add_kegg(&mut self, kegg_sh: kegg_schemas) -> Result<databaseQuery, databaseQuery> {
         match kegg_sh {
             kegg_schemas::CDS(var) => {
                 let var_des = var.as_document().unwrap();

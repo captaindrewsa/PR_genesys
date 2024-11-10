@@ -1,9 +1,9 @@
+#![allow(warnings)]
+
 use bson::Bson;
 
-pub mod database;
-pub mod parsing;
-pub mod smthng;
-
+use crate::database;
+use crate::parsing;
 
 #[derive(Debug)]
 pub enum kegg_schemas {

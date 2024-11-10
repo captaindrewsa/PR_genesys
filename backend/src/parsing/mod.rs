@@ -1,4 +1,6 @@
+#![allow(warnings)]
 mod parsers;
+
 use bson::{doc, Bson};
 use log::{info, trace};
 use parsers::*;
@@ -12,7 +14,7 @@ use serde_json::{self, json};
 use std::{borrow::Borrow, collections::HashMap, str::FromStr};
 use tokio;
 
-use crate::kegg_schemas;
+use crate::utils::kegg_schemas;
 
 pub struct Parser {}
 

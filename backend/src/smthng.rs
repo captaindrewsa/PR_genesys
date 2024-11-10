@@ -1,6 +1,6 @@
+#![allow(warnings)]
 use std::{fs::File, time::UNIX_EPOCH};
 
-use lazy_static::lazy_static;
 use simplelog::{CombinedLogger, ConfigBuilder, TermLogger, WriteLogger};
 
 pub fn loger() {

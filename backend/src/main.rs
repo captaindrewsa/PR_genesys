@@ -2,8 +2,9 @@
 mod database;
 mod parsing;
 mod smthng;
+mod utils;
 
-use backend::database::db::{workingWithProjects, Kegg_database, Project_database};
+use crate::database::db::{workingWithProjects, Kegg_database, Project_database};
 
 use bson::oid::ObjectId;
 use smthng::loger;
@@ -11,10 +12,15 @@ use tokio;
 
 #[tokio::main]
 async fn main() {
-    let database = Project_database { database: 
-        mongodb::Client::with_uri_str("127.0.0.1:27017").await.unwrap().database("Project") };
+    let mut database = Project_database {
+        database: mongodb::Client::with_uri_str("mongodb://127.0.0.1:27017")
+            .await
+            .unwrap()
+            .database("Projects"),
+    };
 
-    let prj = database.create_project("Test_prj").await;
+    let prj = database.create_project("Test_prj12312312").await;
+    println!("{:?}", prj.unwrap());
 
     // database.create_comp(prj, "Compartment").unwrap();
     // database

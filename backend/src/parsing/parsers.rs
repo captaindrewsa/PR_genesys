@@ -1,3 +1,4 @@
+#![allow(warnings)]
 use bson::Bson;
 use log::{info, trace, warn};
 use regex;
@@ -5,7 +6,6 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{collections::HashMap, vec};
-
 
 pub fn entry_row_parsing(html: String) -> Option<Bson> {
     info!("Инициировали парсинг поля Entry");
@@ -342,14 +342,14 @@ pub fn module_row_parsing(html: String) -> Option<Bson> {
 }
 pub fn definition_row_parsing(html: String) -> Option<Bson> {
     info!("Инициировали парсинг поля definition");
-    
+
     #[derive(Serialize, Deserialize, Debug)]
 
     pub struct definition {
         pub Substrate: Vec<String>,
         pub Product: Vec<String>,
     }
-    
+
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Definition: definition,
@@ -400,13 +400,11 @@ pub fn equation_row_parsing(html: String) -> Option<Bson> {
     info!("Инициировали парсинг поля equation");
 
     #[derive(Serialize, Deserialize, Debug)]
-pub struct equation {
-    pub Substrate: Vec<String>,
-    pub Product: Vec<String>,
-}
+    pub struct equation {
+        pub Substrate: Vec<String>,
+        pub Product: Vec<String>,
+    }
 
-    
-    
     #[derive(Serialize, Deserialize, Debug)]
     struct otp_struct {
         Equation: equation,
