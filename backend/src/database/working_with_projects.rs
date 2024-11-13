@@ -150,7 +150,7 @@ impl parse_Kegg_from_query_to_db for TheOneDatabase {
     async fn get_bson_from_entry(&mut self, entry: &str) -> Option<kegg_schemas> {
         
         let re_reaction = regex::Regex::new(r"^R[0-9]{5}").unwrap();
-        let re_enzyme = regex::Regex::new(r"^EC\s").unwrap();
+        let re_enzyme = regex::Regex::new(r"^[0-9]\.").unwrap();
         let re_cds = regex::Regex::new(r"^[0-9]").unwrap();
         let re_compound = regex::Regex::new(r"^C[0-9]{5}").unwrap();
         

@@ -27,7 +27,7 @@ async fn main() {
     };
 
     // Parser::get_kegg("https://www.kegg.jp/entry/2.2.1.5").await;
-    database.add_kegg(Parser::get_kegg("https://www.kegg.jp/entry/2.2.1.5").await).await;
+    // database.add_kegg(Parser::get_kegg("https://www.kegg.jp/entry/2.2.1.5").await).await;
 
 
     let prj = database.create_project("Test_insert").await.unwrap();
@@ -38,7 +38,7 @@ async fn main() {
     //     .create_father_comp(prj, "father_comp", "daughter_comp")
     //     .unwrap();
     database
-        .update_kegg_comp(prj, "Comp_insert", "5315")
+        .update_kegg_comp(prj, "Comp_insert", "2.2.1.5")
         .await
         .unwrap();
 }
