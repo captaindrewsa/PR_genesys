@@ -3,7 +3,7 @@ use std::str;
 
 use bson::oid::ObjectId;
 
-use crate::utils::{databaseQuery, kegg_schemas};
+use crate::utils::{self, databaseQuery, kegg_schemas};
 
 #[derive(Clone)]
 pub struct TheOneDatabase {

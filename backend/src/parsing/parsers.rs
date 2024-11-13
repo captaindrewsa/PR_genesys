@@ -5,7 +5,7 @@ use regex;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::{collections::HashMap, vec};
+use std::{collections::HashMap, str::FromStr, vec};
 
 pub fn entry_row_parsing(html: String) -> Option<Bson> {
     info!("Инициировали парсинг поля Entry");
@@ -36,8 +36,8 @@ pub fn entry_row_parsing(html: String) -> Option<Bson> {
     let word_list = {
         trace!("Распознавание Entry и Type в списке");
         vec![
-            reg_entry.find(&word_list[0]).unwrap().as_str(),
-            reg_type.find(&word_list[0]).unwrap().as_str(),
+            reg_entry.find(&word_list[0]).unwrap().as_str().split("\u{a0}").map(|w| w.to_string()).collect::<Vec<String>>().last().unwrap().to_owned(),
+            reg_type.find(&word_list[0]).unwrap().as_str().to_string(),
         ]
     };
 
