@@ -14,9 +14,8 @@ use tokio;
 
 #[tokio::main]
 async fn main() {
-    
     loger();
-    
+
     let mut database = TheOneDatabase {
         database_kegg: mongodb::Client::with_uri_str("mongodb://127.0.0.1:27017")
             .await
@@ -30,8 +29,9 @@ async fn main() {
     };
 
     // println!("{:?}",Parser::get_kegg("https://www.genome.jp/entry/rpi:Rpic_3007").await);
-    database.add_kegg(Parser::get_kegg("https://www.genome.jp/entry/rpi:Rpic_3007").await).await;
-
+    database
+        .add_kegg(Parser::get_kegg("https://www.genome.jp/entry/rpi:Rpic_3007").await)
+        .await;
 
     // let prj = database.create_project("Test_insert").await.unwrap();
 

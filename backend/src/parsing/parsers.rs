@@ -37,8 +37,22 @@ pub fn entry_row_parsing(html: String) -> Option<Bson> {
     let word_list = {
         trace!("Распознавание Entry и Type в списке");
         vec![
-            reg_entry.find(&word_list[0]).unwrap().as_str().split("\u{a0}").map(|w| w.to_string()).collect::<Vec<String>>().last().unwrap().to_owned(),
-            reg_type.find(&word_list[0]).unwrap().as_str().trim().to_string(),
+            reg_entry
+                .find(&word_list[0])
+                .unwrap()
+                .as_str()
+                .split("\u{a0}")
+                .map(|w| w.to_string())
+                .collect::<Vec<String>>()
+                .last()
+                .unwrap()
+                .to_owned(),
+            reg_type
+                .find(&word_list[0])
+                .unwrap()
+                .as_str()
+                .trim()
+                .to_string(),
         ]
     };
 
@@ -746,5 +760,33 @@ pub fn nt_seq_row_parsing(html: String) -> Option<Bson> {
     let tmp_otp = otp_struct { NT_seq: tmp };
 
     trace!("Поле nt_seq обработано. Возврат Some(BSON)");
+    Some(bson::to_bson(&tmp_otp).unwrap())
+}
+
+pub fn ko_row_parsing(html: String) -> Option<Bson> {
+    info!("Инициировали парсинг поля KO");
+
+    #[derive(Serialize, Deserialize, Debug)]
+    struct otp_struct {
+        KO: Vec<String>,
+    }
+
+    let fragment = Html::parse_fragment(&html);
+    let a_selec = Selector::parse(r"a").unwrap();
+
+    let mut list_KO: Vec<String> = Vec::new();
+
+    trace!("Итерация по найденым KO");
+    for elem in fragment.select(&a_selec) {
+        list_KO.push(
+            elem.text()
+                .map(|word| word.trim().to_string())
+                .collect::<_>(),
+        );
+    }
+
+    let tmp_otp = otp_struct { KO: vec![list_KO.last().unwrap().to_owned()] };
+
+    trace!("Поле KO обработано. Возврат Some(BSON)");
     Some(bson::to_bson(&tmp_otp).unwrap())
 }

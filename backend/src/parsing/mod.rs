@@ -47,10 +47,14 @@ impl IParser for Parser {
             for th in tr.select(&th_selector) {
                 /* Здесь нужно вычленить span для определения названия строчки*/
                 for span in th.select(&span_selector) {
-                    if let Some(name_of_row) = span.text().collect::<Vec<&str>>().first().cloned() {
+                    if let Some(name_of_row) = span
+                        .text()
+                        .map(|key| key.trim())
+                        .collect::<Vec<&str>>()
+                        .first()
+                        .cloned()
+                    {
                         for td in tr.select(&td_selector) {
-                            // println!("=====\n{}\n==========", td.html());
-
                             match name_of_row {
                                 "Entry" => {
                                     if let Some(data) = entry_row_parsing(td.html()) {
@@ -150,6 +154,11 @@ impl IParser for Parser {
                                 }
                                 "NT seq" => {
                                     if let Some(data) = nt_seq_row_parsing(td.html()) {
+                                        otp_string.push(data);
+                                    }
+                                }
+                                "KO" => {
+                                    if let Some(data) = ko_row_parsing(td.html()) {
                                         otp_string.push(data);
                                     }
                                 }

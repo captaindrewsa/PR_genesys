@@ -2,8 +2,8 @@
 use std::str::FromStr;
 
 use bson::{doc, oid::ObjectId, Bson};
-use serde::{Deserialize, Serialize};
 use regex;
+use serde::{Deserialize, Serialize};
 
 use crate::utils::{databaseQuery, kegg_schemas, Compartment, Project_default};
 
@@ -120,7 +120,6 @@ impl workingWithProjects for TheOneDatabase {
         entry_name: &str,
     ) -> Option<bson::oid::ObjectId> {
         let kegg_ob = match self.get_bson_from_entry(entry_name).await.unwrap() {
-            
             kegg_schemas::CDS(bson) => bson,
             kegg_schemas::Enzyme(bson) => bson,
             kegg_schemas::Reaction(bson) => bson,
@@ -148,13 +147,11 @@ impl workingWithProjects for TheOneDatabase {
 
 impl parse_Kegg_from_query_to_db for TheOneDatabase {
     async fn get_bson_from_entry(&mut self, entry: &str) -> Option<kegg_schemas> {
-        
         let re_reaction = regex::Regex::new(r"^R[0-9]{5}").unwrap();
         let re_enzyme = regex::Regex::new(r"^[0-9]\.").unwrap();
         let re_cds = regex::Regex::new(r"^[a-zA-Z]{0,10}_?[0-9]").unwrap();
         let re_compound = regex::Regex::new(r"^C[0-9]{5}").unwrap();
-        
-        
+
         let schema = if re_enzyme.is_match(entry) {
             let kegg_bson = self
                 .database_kegg
@@ -164,7 +161,7 @@ impl parse_Kegg_from_query_to_db for TheOneDatabase {
                 .await
                 .unwrap();
 
-            /* 
+            /*
             Необходимо сделать докачку в случае отсутствия в бд.
             Для этого необходимо сделать конструктор API запросов к kegg.jp
              */
