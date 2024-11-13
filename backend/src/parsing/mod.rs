@@ -190,7 +190,7 @@ impl IParser for Parser {
     }
 
     async fn get_kegg(url: &str) -> kegg_schemas {
-        info!(target: "get_kegg", "Запросили kegg_schemas по uri");
+        info!("Запросили get_kegg по uri");
         Parser::vec_bson_to_kegg_schemas(Parser::parse_kegg_to_string(url).await.unwrap()).await
     }
 }

@@ -151,7 +151,7 @@ impl parse_Kegg_from_query_to_db for TheOneDatabase {
         
         let re_reaction = regex::Regex::new(r"^R[0-9]{5}").unwrap();
         let re_enzyme = regex::Regex::new(r"^[0-9]\.").unwrap();
-        let re_cds = regex::Regex::new(r"^[0-9]").unwrap();
+        let re_cds = regex::Regex::new(r"^[a-zA-Z]{0,10}_?[0-9]").unwrap();
         let re_compound = regex::Regex::new(r"^C[0-9]{5}").unwrap();
         
         
@@ -165,7 +165,8 @@ impl parse_Kegg_from_query_to_db for TheOneDatabase {
                 .unwrap();
 
             /* 
-            Необходимо сделать докачку в случае отсутствия в бд
+            Необходимо сделать докачку в случае отсутствия в бд.
+            Для этого необходимо сделать конструктор API запросов к kegg.jp
              */
             kegg_schemas::Enzyme(kegg_bson.unwrap())
         } else if re_reaction.is_match(entry) {

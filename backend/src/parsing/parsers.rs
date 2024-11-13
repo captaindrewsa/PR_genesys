@@ -18,8 +18,9 @@ pub fn entry_row_parsing(html: String) -> Option<Bson> {
     let fragment = Html::parse_fragment(&html);
     let span_sel = Selector::parse("table.w1 td.tal span").unwrap();
 
-    let reg_entry = regex::Regex::new(r"[A-Z]{0,2}\s??[0-9\.]{4,16}").unwrap();
-    let reg_type = regex::Regex::new(r"[A-Za-z]{3,8}").unwrap();
+    // let reg_entry = regex::Regex::new(r"[A-Za-z]{0,10}\s??[0-9\.]{4,16}").unwrap();
+    let reg_entry = regex::Regex::new(r"^[A-Za-z]{0,6}_??\s??[0-9\.]{4,16}").unwrap();
+    let reg_type = regex::Regex::new(r"\u{a0}[A-Za-z]{3,8}").unwrap();
 
     let mut word_list = {
         if let Some(elem) = fragment.select(&span_sel).next() {
@@ -37,7 +38,7 @@ pub fn entry_row_parsing(html: String) -> Option<Bson> {
         trace!("Распознавание Entry и Type в списке");
         vec![
             reg_entry.find(&word_list[0]).unwrap().as_str().split("\u{a0}").map(|w| w.to_string()).collect::<Vec<String>>().last().unwrap().to_owned(),
-            reg_type.find(&word_list[0]).unwrap().as_str().to_string(),
+            reg_type.find(&word_list[0]).unwrap().as_str().trim().to_string(),
         ]
     };
 
